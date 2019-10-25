@@ -22,7 +22,7 @@ import (
 // build is the git version of this program. It is set using build flags in the makefile.
 var build = "develop"
 
-const APP_NAME = "example"
+const AppName = "example"
 
 func main() {
 	if err := run(); err != nil {
@@ -46,9 +46,9 @@ func run() error {
 		}
 	}
 
-	if err := conf.Parse(os.Args[1:], APP_NAME, &cfg); err != nil {
+	if err := conf.Parse(os.Args[1:], AppName, &cfg); err != nil {
 		if err == conf.ErrHelpWanted {
-			usage, err := conf.Usage(APP_NAME, &cfg)
+			usage, err := conf.Usage(AppName, &cfg)
 			if err != nil {
 				return errors.Wrap(err, "generating config usage")
 			}
@@ -111,7 +111,7 @@ func run() error {
 	registry := prometheus.DefaultRegisterer
 
 	// tracer
-	tracer, closer, err := tracing.InitJaegerTracer(APP_NAME, sugared, registry)
+	tracer, closer, err := tracing.InitJaegerTracer(AppName, sugared, registry)
 	if err != nil {
 		return errors.Wrap(err, "error initializing tracer")
 	}
