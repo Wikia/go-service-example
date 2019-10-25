@@ -47,8 +47,6 @@ func run() error {
 		}
 	}
 
-	sugared.With("config", cfg).Info("Starting service")
-
 	if err := conf.Parse(os.Args[1:], "SALES", &cfg); err != nil {
 		if err == conf.ErrHelpWanted {
 			usage, err := conf.Usage("SALES", &cfg)
@@ -60,6 +58,8 @@ func run() error {
 		}
 		return errors.Wrap(err, "parsing config")
 	}
+
+	sugared.With("config", cfg).Info("Starting service")
 
 	// Print the build version for our logs. Also expose it under /debug/vars.
 	expvar.NewString("build").Set(build)
