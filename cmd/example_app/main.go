@@ -93,7 +93,7 @@ func run() error {
 
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      handlers.API(shutdown, logger),
+		Handler:      handlers.API(shutdown, sugared),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}
