@@ -12,8 +12,10 @@ import (
 	"time"
 
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/handlers"
+	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/ardanlabs/conf"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
@@ -105,9 +107,24 @@ func run() error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
 
+	// metrics
+	registry := prometheus.DefaultRegisterer
+
+	// tracer
+	tracer, closer, err := tracing.InitJaegerTracer(APP_NAME, sugared, registry)
+	if err != nil {
+		return errors.Wrap(err, "error initializing tracer")
+	}
+	defer func() {
+		err := closer.Close()
+		if err != nil {
+			sugared.With("error", err).Error("could not close tracer")
+		}
+	}()
+
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      handlers.API(shutdown, sugared),
+		Handler:      handlers.API(shutdown, sugared, tracer),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}
@@ -124,7 +141,7 @@ func run() error {
 	}()
 
 	// =========================================================================
-	// Start HealtCheck Service
+	// Start HealthCheck Service
 
 	sugared.Info("Started : Initializing internal support")
 
