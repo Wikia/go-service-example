@@ -28,15 +28,6 @@ func main() {
 }
 
 func run() error {
-	// =========================================================================
-	// Logging
-
-	logger, err := zap.NewProduction()
-	if err != nil {
-		panic("could not initialize logger: " + err.Error())
-	}
-	sugared := logger.Sugar().With("appname", "example")
-
 	var cfg struct {
 		Web struct {
 			APIHost         string        `conf:"default:0.0.0.0:3000"`
@@ -44,6 +35,9 @@ func run() error {
 			ReadTimeout     time.Duration `conf:"default:5s"`
 			WriteTimeout    time.Duration `conf:"default:5s"`
 			ShutdownTimeout time.Duration `conf:"default:5s"`
+		}
+		App struct {
+			LoggerType string `conf:"default:prod"`
 		}
 	}
 
@@ -58,6 +52,23 @@ func run() error {
 		}
 		return errors.Wrap(err, "parsing config")
 	}
+
+	// =========================================================================
+	// Logging
+
+	var logger *zap.Logger
+	var err error
+
+	if cfg.App.LoggerType != "dev" {
+		logger, err = zap.NewProduction()
+	} else {
+		logger, err = zap.NewDevelopment()
+	}
+
+	if err != nil {
+		return errors.Wrap(err, "could not initialize logger")
+	}
+	sugared := logger.Sugar().With("appname", "example")
 
 	sugared.With("config", cfg).Info("Starting service")
 
