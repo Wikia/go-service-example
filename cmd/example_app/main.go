@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/handlers"
+	"github.com/Wikia/go-example-service/cmd/example_app/internal/metrics"
 	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/ardanlabs/conf"
 	"github.com/pkg/errors"
@@ -109,6 +110,7 @@ func run() error {
 
 	// metrics
 	registry := prometheus.DefaultRegisterer
+	metrics.RegisterMetrics(prometheus.WrapRegistererWithPrefix(fmt.Sprintf("%s_", AppName), registry))
 
 	// tracer
 	tracer, closer, err := tracing.InitJaegerTracer(AppName, sugared, registry)
