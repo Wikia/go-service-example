@@ -36,8 +36,8 @@ func run() error {
 			WriteTimeout    time.Duration `conf:"default:5s"`
 			ShutdownTimeout time.Duration `conf:"default:5s"`
 		}
-		App struct {
-			LoggerType string `conf:"default:prod"`
+		Logging struct {
+			Type string `conf:"default:prod"`
 		}
 	}
 
@@ -59,7 +59,7 @@ func run() error {
 	var logger *zap.Logger
 	var err error
 
-	if cfg.App.LoggerType != "dev" {
+	if cfg.Logging.Type != "dev" {
 		logger, err = zap.NewProduction()
 	} else {
 		logger, err = zap.NewDevelopment()
