@@ -20,6 +20,8 @@ import (
 // build is the git version of this program. It is set using build flags in the makefile.
 var build = "develop"
 
+const APP_NAME = "example"
+
 func main() {
 	if err := run(); err != nil {
 		log.Println("error :", err)
@@ -31,7 +33,8 @@ func run() error {
 	var cfg struct {
 		Web struct {
 			APIHost         string        `conf:"default:0.0.0.0:3000"`
-			DebugHost       string        `conf:"default:0.0.0.0:4000"`
+			InternalHost    string        `conf:"default:0.0.0.0:4000"`
+			DebugHost       string        `conf:"default:0.0.0.0:5000"`
 			ReadTimeout     time.Duration `conf:"default:5s"`
 			WriteTimeout    time.Duration `conf:"default:5s"`
 			ShutdownTimeout time.Duration `conf:"default:5s"`
@@ -41,9 +44,9 @@ func run() error {
 		}
 	}
 
-	if err := conf.Parse(os.Args[1:], "SALES", &cfg); err != nil {
+	if err := conf.Parse(os.Args[1:], APP_NAME, &cfg); err != nil {
 		if err == conf.ErrHelpWanted {
-			usage, err := conf.Usage("SALES", &cfg)
+			usage, err := conf.Usage(APP_NAME, &cfg)
 			if err != nil {
 				return errors.Wrap(err, "generating config usage")
 			}
@@ -75,7 +78,7 @@ func run() error {
 	// Print the build version for our logs. Also expose it under /debug/vars.
 	expvar.NewString("build").Set(build)
 	sugared.With("version", build).Info("Started : Application initializing")
-	defer sugared.Info("Init Completed")
+	defer sugared.Info("Application terminated")
 
 	// =========================================================================
 	// Start Debug Service
@@ -117,6 +120,25 @@ func run() error {
 	go func() {
 		sugared.With("address", api.Addr).Info("API listening")
 		serverErrors <- api.ListenAndServe()
+		sugared.Infof("API closed")
+	}()
+
+	// =========================================================================
+	// Start HealtCheck Service
+
+	sugared.Info("Started : Initializing internal support")
+
+	internal := http.Server{
+		Addr:         cfg.Web.InternalHost,
+		Handler:      handlers.Internal(shutdown, sugared),
+		ReadTimeout:  cfg.Web.ReadTimeout,
+		WriteTimeout: cfg.Web.WriteTimeout,
+	}
+
+	// Start the service listening for requests.
+	go func() {
+		sugared.With("address", internal.Addr).Info("Internal listening")
+		sugared.Infof("Internal closed: %v", internal.ListenAndServe())
 	}()
 
 	// =========================================================================
@@ -140,6 +162,15 @@ func run() error {
 			sugared.With("timeout", cfg.Web.ShutdownTimeout, "error", err).Warn("Graceful shutdown did not complete")
 			err = api.Close()
 		}
+		sugared.With("signal", sig).Info("API shutdown")
+
+		// Asking listener to shutdown and load shed.
+		err = internal.Shutdown(ctx)
+		if err != nil {
+			sugared.With("timeout", cfg.Web.ShutdownTimeout, "error", err).Warn("Graceful shutdown did not complete")
+			err = internal.Close()
+		}
+		sugared.With("signal", sig).Info("Internal shutdown")
 
 		// Log the status of this shutdown.
 		switch {
