@@ -14,6 +14,7 @@ import (
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/handlers"
 	"github.com/ardanlabs/conf"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 // build is the git version of this program. It is set using build flags in the makefile.
@@ -30,7 +31,11 @@ func run() error {
 	// =========================================================================
 	// Logging
 
-	log := log.New(os.Stdout, "Example: ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	logger, err := zap.NewProduction()
+	if err != nil {
+		panic("could not initialize logger: " + err.Error())
+	}
+	sugared := logger.Sugar().With("appname", "example")
 
 	var cfg struct {
 		Web struct {
@@ -42,7 +47,7 @@ func run() error {
 		}
 	}
 
-	log.Println(cfg)
+	sugared.With("config", cfg).Info("Starting service")
 
 	if err := conf.Parse(os.Args[1:], "SALES", &cfg); err != nil {
 		if err == conf.ErrHelpWanted {
@@ -55,12 +60,11 @@ func run() error {
 		}
 		return errors.Wrap(err, "parsing config")
 	}
-	log.Println(cfg)
 
 	// Print the build version for our logs. Also expose it under /debug/vars.
 	expvar.NewString("build").Set(build)
-	log.Printf("main : Started : Application initializing : version %q", build)
-	defer log.Println("main : Completed")
+	sugared.With("version", build).Info("Started : Application initializing")
+	defer sugared.Info("Init Completed")
 
 	// =========================================================================
 	// Start Debug Service
@@ -70,17 +74,17 @@ func run() error {
 	//
 	// Not concerned with shutting this down when the application is shutdown.
 
-	log.Println("main : Started : Initializing debugging support")
+	sugared.Info("Started : Initializing debugging support")
 
 	go func() {
-		log.Printf("main : Debug Listening %s", cfg.Web.DebugHost)
-		log.Printf("main : Debug Listener closed : %v", http.ListenAndServe(cfg.Web.DebugHost, http.DefaultServeMux))
+		sugared.With("debug_host", cfg.Web.DebugHost).Info("Debug Listening")
+		sugared.Infof("Debug Listener closed : %v", http.ListenAndServe(cfg.Web.DebugHost, http.DefaultServeMux))
 	}()
 
 	// =========================================================================
 	// Start API Service
 
-	log.Println("main : Started : Initializing API support")
+	sugared.Info("Started : Initializing API support")
 
 	// Make a channel to listen for an interrupt or terminate signal from the OS.
 	// Use a buffered channel because the signal package requires it.
@@ -89,7 +93,7 @@ func run() error {
 
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      handlers.API(shutdown, log),
+		Handler:      handlers.API(shutdown, logger),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}
@@ -100,7 +104,7 @@ func run() error {
 
 	// Start the service listening for requests.
 	go func() {
-		log.Printf("main : API listening on %s", api.Addr)
+		sugared.With("address", api.Addr).Info("API listening")
 		serverErrors <- api.ListenAndServe()
 	}()
 
@@ -113,7 +117,7 @@ func run() error {
 		return errors.Wrap(err, "server error")
 
 	case sig := <-shutdown:
-		log.Printf("main : %v : Start shutdown", sig)
+		sugared.With("signal", sig).Info("Start shutdown")
 
 		// Give outstanding requests a deadline for completion.
 		ctx, cancel := context.WithTimeout(context.Background(), cfg.Web.ShutdownTimeout)
@@ -122,7 +126,7 @@ func run() error {
 		// Asking listener to shutdown and load shed.
 		err := api.Shutdown(ctx)
 		if err != nil {
-			log.Printf("main : Graceful shutdown did not complete in %v : %v", cfg.Web.ShutdownTimeout, err)
+			sugared.With("timeout", cfg.Web.ShutdownTimeout, "error", err).Warn("Graceful shutdown did not complete")
 			err = api.Close()
 		}
 
