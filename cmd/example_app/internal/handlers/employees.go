@@ -24,7 +24,7 @@ func InitData(db *gorm.DB) {
 func All(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logmiddleware.FromRequest(r)
-		logger.Info("Fetching single employee")
+		logger.Info("Fetching list of all employees")
 
 		var people []Employee
 		if err := db.Find(&people).Error; err != nil {

@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	ihandlers "github.com/Wikia/go-example-service/internal/handlers"
+	internalHandlers "github.com/Wikia/go-example-service/internal/handlers"
 	"github.com/go-chi/chi"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 )
 
@@ -13,7 +14,8 @@ import (
 func Internal(shutdown chan os.Signal, log *zap.SugaredLogger) http.Handler {
 
 	r := chi.NewRouter()
-	r.Get("/healhcheck", http.HandlerFunc(ihandlers.HealthCheck))
-	r.Get("/readiness", http.HandlerFunc(ihandlers.Readiness))
+	r.Get("/healthcheck", http.HandlerFunc(internalHandlers.HealthCheck))
+	r.Get("/readiness", http.HandlerFunc(internalHandlers.Readiness))
+	r.Get("/metrics", promhttp.Handler().ServeHTTP)
 	return r
 }
