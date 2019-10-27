@@ -13,6 +13,7 @@ import (
 
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/handlers"
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/metrics"
+	"github.com/Wikia/go-example-service/cmd/example_app/internal/models"
 	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/ardanlabs/conf"
 	"github.com/jinzhu/gorm"
@@ -97,7 +98,7 @@ func run() error {
 	defer db.Close()
 
 	//Init for this example
-	handlers.InitData(db)
+	models.InitData(db)
 
 	// Print the build version for our logs. Also expose it under /debug/vars.
 	expvar.NewString("build").Set(build)

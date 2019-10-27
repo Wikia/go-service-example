@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Wikia/go-example-service/cmd/example_app/internal/models"
+
 	"github.com/jinzhu/gorm"
 
 	logmiddleware "github.com/harnash/go-middlewares/logger"
@@ -15,19 +17,14 @@ type Employee struct {
 	City string
 }
 
-func InitData(db *gorm.DB) {
-	db.AutoMigrate(&Employee{})
-	db.Create(&Employee{Name: "Przemek", City: "Olsztyn"})
-	db.Create(&Employee{Name: "Łukasz", City: "Poznań"})
-}
-
 func All(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger := logmiddleware.FromRequest(r)
 		logger.Info("Fetching list of all employees")
 
-		var people []Employee
-		if err := db.Find(&people).Error; err != nil {
+		people, err := models.AllEmployees(db)
+
+		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		} else {
 			b, err := json.Marshal(people)
