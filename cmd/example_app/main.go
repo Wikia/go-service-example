@@ -13,6 +13,8 @@ import (
 
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/handlers"
 	"github.com/ardanlabs/conf"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -41,6 +43,13 @@ func run() error {
 		}
 		Logging struct {
 			Type string `conf:"default:prod"`
+		}
+		DB struct {
+			Driver   string `conf:"default:sqlite3"`
+			User     string `conf:"default:root"`
+			Password string `conf:"default:root"`
+			Host     string `conf:"default:localhost"`
+			Database string `conf:"default:test.db"`
 		}
 	}
 
@@ -75,6 +84,18 @@ func run() error {
 
 	sugared.With("config", cfg).Info("Starting service")
 
+	// =========================================================================
+	// DB
+
+	db, err := gorm.Open(cfg.DB.Driver, cfg.DB.Database)
+	if err != nil {
+		panic("failed to connect database")
+	}
+	defer db.Close()
+
+	//Init for this example
+	handlers.InitData(db)
+
 	// Print the build version for our logs. Also expose it under /debug/vars.
 	expvar.NewString("build").Set(build)
 	sugared.With("version", build).Info("Started : Application initializing")
@@ -107,7 +128,7 @@ func run() error {
 
 	api := http.Server{
 		Addr:         cfg.Web.APIHost,
-		Handler:      handlers.API(shutdown, sugared),
+		Handler:      handlers.API(shutdown, sugared, db),
 		ReadTimeout:  cfg.Web.ReadTimeout,
 		WriteTimeout: cfg.Web.WriteTimeout,
 	}

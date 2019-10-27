@@ -8,6 +8,7 @@ require (
 	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/harnash/go-middlewares v0.0.0-20190703073925-c95f90abe608
+	github.com/jinzhu/gorm v1.9.11
 	github.com/pkg/errors v0.8.1
 	go.uber.org/zap v1.9.1
 )
