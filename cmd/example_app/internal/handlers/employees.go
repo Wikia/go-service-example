@@ -8,7 +8,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	logmiddleware "github.com/harnash/go-middlewares/logger"
+	"github.com/harnash/go-middlewares/logging"
 )
 
 type Employee struct {
@@ -19,7 +19,7 @@ type Employee struct {
 
 func All(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger := logmiddleware.FromRequest(r)
+		logger := logging.FromRequest(r)
 		logger.Info("Fetching list of all employees")
 
 		people, err := models.AllEmployees(db)

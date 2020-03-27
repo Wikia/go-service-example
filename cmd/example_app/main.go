@@ -18,7 +18,7 @@ import (
 	"github.com/ardanlabs/conf"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	metricsmiddleware "github.com/harnash/go-middlewares/metrics"
+	"github.com/harnash/go-middlewares/http_metrics"
 	"github.com/harnash/go-middlewares/recovery"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -141,7 +141,7 @@ func run() error {
 	// metrics
 	registry := prometheus.DefaultRegisterer
 	metrics.RegisterMetrics(prometheus.WrapRegistererWithPrefix(fmt.Sprintf("%s_", AppName), registry))
-	err = metricsmiddleware.RegisterDefaultMetrics(registry)
+	err = http_metrics.RegisterDefaultMetrics(registry)
 	if err != nil {
 		sugared.With("error", err).Error("could not initialize http middleware metrics")
 	}
