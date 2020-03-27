@@ -19,6 +19,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	metricsmiddleware "github.com/harnash/go-middlewares/metrics"
+	"github.com/harnash/go-middlewares/recovery"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
@@ -142,7 +143,12 @@ func run() error {
 	metrics.RegisterMetrics(prometheus.WrapRegistererWithPrefix(fmt.Sprintf("%s_", AppName), registry))
 	err = metricsmiddleware.RegisterDefaultMetrics(registry)
 	if err != nil {
-		sugared.With("error", err).Error("could not initialize middleware metrics")
+		sugared.With("error", err).Error("could not initialize http middleware metrics")
+	}
+
+	err = recovery.RegisterDefaultMetrics(registry)
+	if err != nil {
+		sugared.With("error", err).Error("could not initialize panics middleware metrics")
 	}
 
 	// tracer

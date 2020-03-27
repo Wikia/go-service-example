@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi"
 	logmiddleware "github.com/harnash/go-middlewares/logger"
 	metricsmiddleware "github.com/harnash/go-middlewares/metrics"
+	"github.com/harnash/go-middlewares/recovery"
 	"github.com/harnash/go-middlewares/tracing"
 	"github.com/jinzhu/gorm"
 	"github.com/opentracing/opentracing-go"
@@ -18,6 +19,7 @@ func API(shutdown chan os.Signal, logger *zap.SugaredLogger, tracer opentracing.
 	r := chi.NewRouter()
 	r.Use(
 		logmiddleware.InContext(logmiddleware.WithLogger(func() (*zap.SugaredLogger, error) { return logger, nil })),
+		recovery.PanicCatch(),
 		logmiddleware.AccessLog(),
 		tracing.Traced(tracing.WithTracer(tracer)),
 		logmiddleware.InContext(
