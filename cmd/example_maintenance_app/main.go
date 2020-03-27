@@ -29,6 +29,10 @@ func run() error {
 		DryRun bool `conf:"default:true,help:do not make any changes - just display intended changes"`
 		Delay time.Duration `conf:"default:5s,help:delay before starting applying changes"`
 		Environment string `conf:"default:prod,name of the environment app is running in (prod/dev/localhost)"`
+		Datacenter string `conf:"help:name of the environment app is running on"`
+		K8S struct {
+			PodName string `conf:"help:name of the pod running the app"`
+		}
 
 		Logging struct {
 			Type string `conf:"default:prod,help:set logging format (prod/dev)"`
@@ -83,7 +87,7 @@ func run() error {
 	if err != nil {
 		panic(fmt.Sprintf("could not initialize log: %v", err))
 	}
-	sugared := logger.Sugar().With("appname", AppName)
+	sugared := logger.Sugar().With("appname", AppName, "environment", cfg.Environment, "datacenter", cfg.Datacenter, "pod_name", cfg.K8S.PodName)
 
 	// =========================================================================
 	// DB

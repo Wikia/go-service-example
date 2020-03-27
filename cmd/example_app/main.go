@@ -41,6 +41,10 @@ func main() {
 func run() error {
 	var cfg struct {
 		Environment string `conf:"default:prod,name of the environment app is running in (prod/dev/localhost)"`
+		Datacenter string `conf:"help:name of the environment app is running on"`
+		K8S struct {
+			PodName string `conf:"help:name of the pod running the app"`
+		}
 		Web struct {
 			APIHost         string        `conf:"default:0.0.0.0:3000"`
 			InternalHost    string        `conf:"default:0.0.0.0:4000"`
@@ -101,7 +105,7 @@ func run() error {
 	if err != nil {
 		panic(fmt.Sprintf("could not initialize log: %v", err))
 	}
-	sugared := logger.Sugar().With("appname", AppName)
+	sugared := logger.Sugar().With("appname", AppName, "environment", cfg.Environment, "datacenter", cfg.Datacenter, "pod_name", cfg.K8S.PodName)
 
 	sugared.With("config", cfg).Info("Starting service")
 
