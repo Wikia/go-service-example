@@ -94,9 +94,15 @@ func run() error {
 
 	db, err := gorm.Open(cfg.DB.Driver, cfg.DB.Database)
 	if err != nil {
-		panic("failed to connect database")
+		sugared.With("error", err).Panic("failed to connect database")
 	}
-	defer db.Close()
+
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			sugared.With("error", err).Error("error while closing database handler")
+		}
+	}()
 
 	//Init for this example
 	models.InitData(db)

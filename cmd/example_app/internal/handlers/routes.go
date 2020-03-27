@@ -26,7 +26,8 @@ func API(shutdown chan os.Signal, logger *zap.SugaredLogger, tracer opentracing.
 	r.Route("/example", func(r chi.Router) {
 		r.Get("/hello", metricsmiddleware.Measured(metricsmiddleware.WithName("hello"))(http.HandlerFunc(Hello)).ServeHTTP)
 		r.Route("/employee", func(r chi.Router) {
-			r.Get("/all", All(db))
+			r.Get("/all", metricsmiddleware.Measured(
+				metricsmiddleware.WithName("all_employee"))(http.HandlerFunc(All(db))).ServeHTTP)
 		})
 	})
 
