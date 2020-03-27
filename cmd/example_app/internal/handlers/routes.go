@@ -18,6 +18,7 @@ func API(shutdown chan os.Signal, logger *zap.SugaredLogger, tracer opentracing.
 	r := chi.NewRouter()
 	r.Use(
 		logmiddleware.InContext(logmiddleware.WithLogger(func() (*zap.SugaredLogger, error) { return logger, nil })),
+		logmiddleware.AccessLog(),
 		tracing.Traced(tracing.WithTracer(tracer)),
 		logmiddleware.InContext(
 			logmiddleware.WithLogger(func() (*zap.SugaredLogger, error) { return logger, nil })),
