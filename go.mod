@@ -3,7 +3,7 @@ module github.com/Wikia/go-example-service
 go 1.13
 
 require (
-	github.com/ardanlabs/conf v1.1.0
+	github.com/ardanlabs/conf v1.2.1
 	github.com/go-chi/chi v4.0.4+incompatible
 	github.com/harnash/go-middlewares v0.0.3
 	github.com/jinzhu/gorm v1.9.11

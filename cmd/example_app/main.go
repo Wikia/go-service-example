@@ -86,7 +86,7 @@ func run() error {
 	if err != nil {
 		return errors.Wrap(err, "could not initialize logger")
 	}
-	sugared := logger.Sugar().With("appname", "example")
+	sugared := logger.Sugar().With("appname", AppName)
 
 	sugared.With("config", cfg).Info("Starting service")
 

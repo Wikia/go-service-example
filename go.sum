@@ -8,8 +8,8 @@ github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMx
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
 github.com/apache/thrift v0.12.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
-github.com/ardanlabs/conf v1.1.0 h1:3eZM+TAJCz4E9oqsKReoQqHmcjHaTVgK7251NRFUKLU=
-github.com/ardanlabs/conf v1.1.0/go.mod h1:ILsMo9dMqYzCxDjDXTiwMI0IgxOJd0MOiucbQY2wlJw=
+github.com/ardanlabs/conf v1.2.1 h1:lxQaqN+Nh9hvDwMGO0wNn8EmEs2FqNlNZ5SvjR4iziY=
+github.com/ardanlabs/conf v1.2.1/go.mod h1:ILsMo9dMqYzCxDjDXTiwMI0IgxOJd0MOiucbQY2wlJw=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 h1:xJ4a3vCFaGF/jqvzLMYoU8P317H5OQ+Via4RmuPwCS0=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
@@ -50,8 +50,6 @@ github.com/google/pprof v0.0.0-20181206194817-3ea8567a2e57/go.mod h1:zfwlbNMJ+OI
 github.com/googleapis/gax-go/v2 v2.0.4/go.mod h1:0Wqv26UfaUD9n4G6kQubkQ+KchISgw+vpHVxEJEs9eg=
 github.com/gorilla/context v1.1.1/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51q0aT7Yg=
 github.com/gorilla/mux v1.6.2/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
-github.com/harnash/go-middlewares v0.0.2 h1:z2jkyadC4XhS5pz1dsO8gknase7fM47JfZHwJt5i4Uw=
-github.com/harnash/go-middlewares v0.0.2/go.mod h1:tdCj5f0U+flhgS5UOJMHmH41xnZFmEtwxbufDG8/Ye8=
 github.com/harnash/go-middlewares v0.0.3 h1:6lJrEbOZxWXMmmI34HrR2JA7w0hiIRgAqbLJ7lvJ5AQ=
 github.com/harnash/go-middlewares v0.0.3/go.mod h1:tdCj5f0U+flhgS5UOJMHmH41xnZFmEtwxbufDG8/Ye8=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
