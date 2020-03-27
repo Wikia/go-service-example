@@ -18,6 +18,7 @@ import (
 	"github.com/ardanlabs/conf"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	metricsmiddleware "github.com/harnash/go-middlewares/metrics"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
@@ -133,6 +134,10 @@ func run() error {
 	// metrics
 	registry := prometheus.DefaultRegisterer
 	metrics.RegisterMetrics(prometheus.WrapRegistererWithPrefix(fmt.Sprintf("%s_", AppName), registry))
+	err = metricsmiddleware.RegisterDefaultMetrics(registry)
+	if err != nil {
+		sugared.With("error", err).Error("could not initialize middleware metrics")
+	}
 
 	// tracer
 	tracer, closer, err := tracing.InitJaegerTracer(AppName, sugared, registry)

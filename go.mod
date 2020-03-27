@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/ardanlabs/conf v1.1.0
 	github.com/go-chi/chi v4.0.2+incompatible
-	github.com/harnash/go-middlewares v0.0.0-20190703073925-c95f90abe608
+	github.com/harnash/go-middlewares v0.0.2
 	github.com/jinzhu/gorm v1.9.11
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.2.0 // indirect

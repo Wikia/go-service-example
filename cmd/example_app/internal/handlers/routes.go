@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi"
 	logmiddleware "github.com/harnash/go-middlewares/logger"
+	metricsmiddleware "github.com/harnash/go-middlewares/metrics"
 	"github.com/harnash/go-middlewares/tracing"
 	"github.com/jinzhu/gorm"
 	"github.com/opentracing/opentracing-go"
@@ -23,7 +24,7 @@ func API(shutdown chan os.Signal, logger *zap.SugaredLogger, tracer opentracing.
 	)
 
 	r.Route("/example", func(r chi.Router) {
-		r.Get("/hello", Hello)
+		r.Get("/hello", metricsmiddleware.Measured(metricsmiddleware.WithName("hello"))(http.HandlerFunc(Hello)).ServeHTTP)
 		r.Route("/employee", func(r chi.Router) {
 			r.Get("/all", All(db))
 		})
