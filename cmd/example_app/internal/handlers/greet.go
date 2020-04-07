@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/metrics"
-	logmiddleware "github.com/harnash/go-middlewares/logger"
+	"github.com/harnash/go-middlewares/logging"
 )
 
 type Message struct {
@@ -13,7 +13,7 @@ type Message struct {
 }
 
 func Hello(w http.ResponseWriter, r *http.Request) {
-	logger := logmiddleware.FromRequest(r)
+	logger := logging.FromRequest(r)
 	logger.Info("Greeting user")
 	defer metrics.GreetCount.Inc()
 

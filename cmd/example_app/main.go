@@ -18,9 +18,12 @@ import (
 	"github.com/ardanlabs/conf"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/harnash/go-middlewares/http_metrics"
+	"github.com/harnash/go-middlewares/recovery"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // build is the git version of this program. It is set using build flags in the makefile.
@@ -37,6 +40,11 @@ func main() {
 
 func run() error {
 	var cfg struct {
+		Environment string `conf:"default:prod,name of the environment app is running in (prod/dev/localhost)"`
+		Datacenter string `conf:"help:name of the environment app is running on"`
+		K8S struct {
+			PodName string `conf:"help:name of the pod running the app"`
+		}
 		Web struct {
 			APIHost         string        `conf:"default:0.0.0.0:3000"`
 			InternalHost    string        `conf:"default:0.0.0.0:4000"`
@@ -47,6 +55,7 @@ func run() error {
 		}
 		Logging struct {
 			Type string `conf:"default:prod"`
+			Level string `conf:"default:info"`
 		}
 		DB struct {
 			Driver   string `conf:"default:sqlite3"`
@@ -73,18 +82,30 @@ func run() error {
 	// Logging
 
 	var logger *zap.Logger
+	var logCfg zap.Config
 	var err error
 
-	if cfg.Logging.Type != "dev" {
-		logger, err = zap.NewProduction()
+	if cfg.Logging.Type == "dev" || cfg.Logging.Type == "localhost" {
+		logCfg = zap.NewDevelopmentConfig()
 	} else {
-		logger, err = zap.NewDevelopment()
+		logCfg = zap.NewProductionConfig()
+	}
+
+	if cfg.Environment == "localhost" {
+		logCfg.EncoderConfig.EncodeLevel = zapcore.LowercaseColorLevelEncoder
+	}
+
+	logLevel := zap.InfoLevel
+	err = logLevel.Set(cfg.Logging.Level)
+	if err == nil {
+		logCfg.Level = zap.NewAtomicLevelAt(logLevel)
+		logger, err = logCfg.Build()
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "could not initialize logger")
+		panic(fmt.Sprintf("could not initialize log: %v", err))
 	}
-	sugared := logger.Sugar().With("appname", "example")
+	sugared := logger.Sugar().With("appname", AppName, "environment", cfg.Environment, "datacenter", cfg.Datacenter, "pod_name", cfg.K8S.PodName)
 
 	sugared.With("config", cfg).Info("Starting service")
 
@@ -93,12 +114,20 @@ func run() error {
 
 	db, err := gorm.Open(cfg.DB.Driver, cfg.DB.Database)
 	if err != nil {
-		panic("failed to connect database")
+		sugared.With("error", err).Panic("failed to connect database")
 	}
-	defer db.Close()
+
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			sugared.With("error", err).Error("error while closing database handler")
+		}
+	}()
 
 	//Init for this example
-	models.InitData(db)
+	if !db.HasTable(models.Employee{}) {
+		models.InitData(db)
+	}
 
 	// Print the build version for our logs. Also expose it under /debug/vars.
 	expvar.NewString("build").Set(build)
@@ -133,6 +162,15 @@ func run() error {
 	// metrics
 	registry := prometheus.DefaultRegisterer
 	metrics.RegisterMetrics(prometheus.WrapRegistererWithPrefix(fmt.Sprintf("%s_", AppName), registry))
+	err = http_metrics.RegisterDefaultMetrics(registry)
+	if err != nil {
+		sugared.With("error", err).Error("could not initialize http middleware metrics")
+	}
+
+	err = recovery.RegisterDefaultMetrics(registry)
+	if err != nil {
+		sugared.With("error", err).Error("could not initialize panics middleware metrics")
+	}
 
 	// tracer
 	tracer, closer, err := tracing.InitJaegerTracer(AppName, sugared, registry)

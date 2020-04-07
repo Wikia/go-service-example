@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/go-chi/chi"
-	logmiddleware "github.com/harnash/go-middlewares/logger"
+	"github.com/harnash/go-middlewares/logging"
+	"github.com/harnash/go-middlewares/http_metrics"
+	"github.com/harnash/go-middlewares/recovery"
 	"github.com/harnash/go-middlewares/tracing"
 	"github.com/jinzhu/gorm"
 	"github.com/opentracing/opentracing-go"
@@ -16,16 +18,19 @@ import (
 func API(shutdown chan os.Signal, logger *zap.SugaredLogger, tracer opentracing.Tracer, db *gorm.DB) http.Handler {
 	r := chi.NewRouter()
 	r.Use(
-		logmiddleware.InContext(logmiddleware.WithLogger(func() (*zap.SugaredLogger, error) { return logger, nil })),
+		logging.InContext(logging.WithLogger(func() (*zap.SugaredLogger, error) { return logger, nil })),
+		recovery.PanicCatch(),
+		logging.AccessLog(),
 		tracing.Traced(tracing.WithTracer(tracer)),
-		logmiddleware.InContext(
-			logmiddleware.WithLogger(func() (*zap.SugaredLogger, error) { return logger, nil })),
+		logging.InContext(
+			logging.WithLogger(func() (*zap.SugaredLogger, error) { return logger, nil })),
 	)
 
 	r.Route("/example", func(r chi.Router) {
-		r.Get("/hello", Hello)
+		r.Get("/hello", http_metrics.Measured(http_metrics.WithName("hello"))(http.HandlerFunc(Hello)).ServeHTTP)
 		r.Route("/employee", func(r chi.Router) {
-			r.Get("/all", All(db))
+			r.Get("/all", http_metrics.Measured(
+				http_metrics.WithName("all_employee"))(http.HandlerFunc(All(db))).ServeHTTP)
 		})
 	})
 
