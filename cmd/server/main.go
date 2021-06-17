@@ -110,6 +110,8 @@ func run() error {
 
 	sugared.With("config", cfg).Info("Starting service")
 
+	zap.ReplaceGlobals(logger)
+
 	// =========================================================================
 	// DB
 
@@ -140,8 +142,7 @@ func run() error {
 	metrics.RegisterMetrics(prometheus.WrapRegistererWithPrefix(fmt.Sprintf("%s_", AppName), registry))
 
 	// tracer
-	jaegerUrl := fmt.Sprintf("http://%s:%s", os.Getenv("JAEGER_AGENT_HOST"), os.Getenv("JAEGER_AGENT_PORT"))
-	tp := tracing.InitJaegerTracer(AppName, cfg.Environment, jaegerUrl, sugared)
+	tp := tracing.InitJaegerTracer(AppName, cfg.Environment, sugared)
 	defer func() {
 		if err := tp.Shutdown(context.Background()); err != nil {
 			sugared.With("error", err).Error("error shutting down tracer provider")

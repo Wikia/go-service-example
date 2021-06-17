@@ -7,13 +7,13 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv"
+	"go.opentelemetry.io/otel/semconv"
 	"go.uber.org/zap"
 )
 
 
-func InitJaegerTracer(serviceName, environment, jaegerUrl string, logger *zap.SugaredLogger) *sdktrace.TracerProvider {
-	exporter, err := jaeger.NewRawExporter(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(jaegerUrl)))
+func InitJaegerTracer(serviceName, environment string, logger *zap.SugaredLogger) *sdktrace.TracerProvider {
+	exporter, err := jaeger.NewRawExporter(jaeger.WithAgentEndpoint())
 	if err != nil {
 		logger.With("error", err).Fatal("could not register tracing jaeger exporter")
 	}
