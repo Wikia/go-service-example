@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
 )
@@ -21,10 +22,9 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 
 	r.Use(
 		echozap.ZapLogger(logger),
-		middleware.Recover(),
+		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 		traceMiddleware,
 	)
-
 
 	example := r.Group("/example")
 	{

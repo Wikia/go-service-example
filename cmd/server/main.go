@@ -150,6 +150,8 @@ func run() error {
 
 	go func() {
 		internal := handlers.Internal(logger)
+		internal.HideBanner = true // no need to see it twice
+		internal.HidePort = cfg.Environment != "dev"
 		err = internal.Start(cfg.Web.InternalHost)
 		if err != nil {
 			sugared.With("error", err).Fatal("error starting internal server")
@@ -157,6 +159,8 @@ func run() error {
 	}()
 
 	api := handlers.API(logger, tracer, AppName, db)
+	api.HideBanner = cfg.Environment != "dev"
+	api.HidePort = cfg.Environment != "dev"
 
 	err = api.Start(cfg.Web.APIHost)
 	if err != nil {
