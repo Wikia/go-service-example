@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-chi/chi"
-	"github.com/harnash/go-middlewares/logging"
+	"github.com/go-chi/chi/v5"
 	"github.com/harnash/go-middlewares/http_metrics"
+	"github.com/harnash/go-middlewares/logging"
 	"github.com/harnash/go-middlewares/recovery"
 	"github.com/harnash/go-middlewares/tracing"
 	"github.com/jinzhu/gorm"
@@ -31,6 +31,12 @@ func API(shutdown chan os.Signal, logger *zap.SugaredLogger, tracer opentracing.
 		r.Route("/employee", func(r chi.Router) {
 			r.Get("/all", http_metrics.Measured(
 				http_metrics.WithName("all_employee"))(http.HandlerFunc(All(db))).ServeHTTP)
+			r.Get("/{id}", http_metrics.Measured(
+				http_metrics.WithName("get_employee"))(http.HandlerFunc(GetEmployee(db))).ServeHTTP)
+			r.Put("/", http_metrics.Measured(
+				http_metrics.WithName("add_employee"))(http.HandlerFunc(CreateEmployee(db))).ServeHTTP)
+			r.Delete("/{id}", http_metrics.Measured(
+				http_metrics.WithName("delete_employee"))(http.HandlerFunc(DeleteEmployee(db))).ServeHTTP)
 		})
 	})
 

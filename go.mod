@@ -5,7 +5,8 @@ go 1.13
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.0 // indirect
 	github.com/ardanlabs/conf v1.4.0
-	github.com/go-chi/chi v4.0.4+incompatible
+	github.com/go-chi/chi/v5 v5.0.3
+	github.com/go-chi/render v1.0.1
 	github.com/harnash/go-middlewares v0.0.3
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.2.0 // indirect

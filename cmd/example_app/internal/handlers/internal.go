@@ -5,7 +5,7 @@ import (
 	"os"
 
 	internalHandlers "github.com/Wikia/go-example-service/internal/handlers"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 )

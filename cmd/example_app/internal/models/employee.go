@@ -5,9 +5,9 @@ import (
 )
 
 type Employee struct {
-	Id   int
-	Name string
-	City string
+	Id   int `json:"id"`
+	Name string `json:"name"`
+	City string `json:"city"`
 }
 
 func InitData(db *gorm.DB) {
@@ -18,5 +18,21 @@ func InitData(db *gorm.DB) {
 
 func AllEmployees(db *gorm.DB) (people []Employee, err error) {
 	err = db.Find(&people).Error
+	return
+}
+
+func AddEmployee(db *gorm.DB, newEmployee *Employee) (err error) {
+	err = db.Create(newEmployee).Error
+	return
+}
+
+func GetEmployee(db *gorm.DB, employeeId string) (*Employee, error) {
+	employee := Employee{}
+	err := db.First(&employee, employeeId).Error
+	return &employee, err
+}
+
+func DeleteEmployee(db *gorm.DB, employeeId string) (err error) {
+	err = db.Delete(&Employee{}, employeeId).Error
 	return
 }
