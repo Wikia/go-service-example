@@ -10,13 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type Employee struct {
-	Id   int
-	Name string
-	City string
-}
-
-func All(db *gorm.DB) func(ctx *gin.Context) {
+func AllEmployees(db *gorm.DB) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		logger := zap.S()
 		logger.Info("Fetching list of all employees")
@@ -28,5 +22,22 @@ func All(db *gorm.DB) func(ctx *gin.Context) {
 		} else {
 			ctx.JSON(http.StatusOK, people)
 		}
+	}
+}
+
+func CreateEmployee(db *gorm.DB) func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		logger := zap.S()
+		e := &models.Employee{}
+		if err := ctx.Bind(e); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		logger.With("employee", e).Info("creating new employee")
+		if err := models.AddEmployee(db, e); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.Status(http.StatusAccepted)
 	}
 }

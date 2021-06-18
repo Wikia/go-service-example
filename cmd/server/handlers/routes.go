@@ -27,7 +27,8 @@ func API(logger *zap.Logger, appName string, db *gorm.DB) *gin.Engine {
 		example.GET("/hello", Hello)
 		employee := example.Group("/employee")
 		{
-			employee.GET("/all", All(db))
+			employee.GET("/all", AllEmployees(db))
+			employee.PUT("/", CreateEmployee(db))
 		}
 	}
 
