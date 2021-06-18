@@ -15,7 +15,7 @@ type Message struct {
 func Hello(ctx *gin.Context) {
 	logger := zap.S()
 	logger.Info("Greeting user")
-	defer metrics.GreetCount.Inc()
+	defer metrics.GreetCount.Add(ctx, 1)
 
 	m := Message{"Hello World"}
 	ctx.JSON(http.StatusOK, m)

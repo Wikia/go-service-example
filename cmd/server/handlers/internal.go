@@ -3,12 +3,12 @@ package handlers
 import (
 	internalHandlers "github.com/Wikia/go-example-service/internal/handlers"
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.uber.org/zap"
 )
 
 // Internal constructs an http.Handler with all application routes defined.
-func Internal(log *zap.Logger) *gin.Engine {
+func Internal(log *zap.Logger, exporter *prometheus.Exporter) *gin.Engine {
 	r := gin.New()
 
 	health := r.Group("/health")
@@ -18,7 +18,7 @@ func Internal(log *zap.Logger) *gin.Engine {
 	}
 
 	r.GET("/metrics", func(ctx *gin.Context) {
-		promhttp.Handler().ServeHTTP(ctx.Writer, ctx.Request)
+		exporter.ServeHTTP(ctx.Writer, ctx.Request)
 	})
 
 	return r

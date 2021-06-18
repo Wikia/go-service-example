@@ -17,8 +17,8 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel"
+	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -138,8 +138,13 @@ func run() error {
 	defer sugared.Info("Application terminated")
 
 	// metrics
-	registry := prometheus.DefaultRegisterer
-	metrics.RegisterMetrics(prometheus.WrapRegistererWithPrefix(fmt.Sprintf("%s_", AppName), registry))
+	exporter, ctrl := metrics.RegisterMetrics(AppName, cfg.Environment, sugared)
+	defer func(c *controller.Controller, ctx context.Context) {
+		err := c.Stop(ctx)
+		if err != nil {
+			sugared.With("error", err).Error("could not stop metrics controller")
+		}
+	}(ctrl, context.Background())
 
 	// tracer
 	tp := tracing.InitJaegerTracer(AppName, cfg.Environment, sugared)
@@ -150,7 +155,7 @@ func run() error {
 	}()
 
 	go func() {
-		internal := handlers.Internal(logger)
+		internal := handlers.Internal(logger, exporter)
 		err = internal.Run(cfg.Web.InternalHost)
 		if err != nil {
 			sugared.With("error", err).Fatal("error starting internal server")
