@@ -32,6 +32,9 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 		employee := example.Group("/employee")
 		{
 			employee.GET("/all", All(db))
+			employee.PUT("/", CreateEmployee(db))
+			employee.GET("/:id", GetEmployee(db))
+			employee.DELETE("/:id", DeleteEmployee(db))
 		}
 	}
 

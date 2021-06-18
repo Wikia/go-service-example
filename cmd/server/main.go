@@ -10,6 +10,7 @@ import (
 	"github.com/Wikia/go-example-service/cmd/server/handlers"
 	"github.com/Wikia/go-example-service/cmd/server/metrics"
 	"github.com/Wikia/go-example-service/cmd/server/models"
+	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/ardanlabs/conf"
 	"github.com/jinzhu/gorm"
@@ -112,6 +113,7 @@ func run() error {
 	if err != nil {
 		sugared.With("error", err).Panic("failed to connect database")
 	}
+	db.SetLogger(&logging.TracingLogger{Logger: sugared})
 
 	defer func() {
 		err := db.Close()

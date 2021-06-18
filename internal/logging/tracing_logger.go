@@ -21,3 +21,7 @@ func (l *TracingLogger) Infof(msg string, args ...interface{}) {
 func (l *TracingLogger) Debugf(msg string, args ...interface{}) {
 	l.Logger.Debugf(msg, args...)
 }
+
+func (l *TracingLogger) Print(args ...interface{}) {
+	l.Logger.Info(args)
+}
