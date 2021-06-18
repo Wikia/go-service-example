@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"github.com/brpaz/echozap"
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // API constructs an http.Handler with all application routes defined.

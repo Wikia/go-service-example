@@ -6,8 +6,7 @@ import (
 	"github.com/Wikia/go-example-service/cmd/server/models"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Employee struct {
@@ -21,7 +20,7 @@ func All(db *gorm.DB) func(ctx echo.Context) error {
 		logger := zap.S()
 		logger.Info("Fetching list of all employees")
 
-		people, err := models.AllEmployees(db)
+		people, err := models.AllEmployees(ctx.Request().Context(), db)
 
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -39,7 +38,7 @@ func CreateEmployee(db *gorm.DB) func(ctx echo.Context) error {
 			return err
 		}
 		logger.With("employee", e).Info("creating new employee")
-		if err := models.AddEmployee(db, e); err != nil {
+		if err := models.AddEmployee(ctx.Request().Context(), db, e); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return ctx.NoContent(http.StatusAccepted)
@@ -51,7 +50,7 @@ func GetEmployee(db *gorm.DB) func (ctx echo.Context) error {
 		logger := zap.S()
 		employeeId := ctx.Param("id")
 		logger.With("id", employeeId).Info("looking up employee")
-		e, err := models.GetEmployee(db, employeeId)
+		e, err := models.GetEmployee(ctx.Request().Context(), db, employeeId)
 		if err == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, "object with given id not found")
 		} else if err != nil {
@@ -67,7 +66,7 @@ func DeleteEmployee(db *gorm.DB) func (ctx echo.Context) error {
 		logger := zap.S()
 		employeeId := ctx.Param("id")
 		logger.With("id", employeeId).Info("deleting employee")
-		err := models.DeleteEmployee(db, employeeId)
+		err := models.DeleteEmployee(ctx.Request().Context(), db, employeeId)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}

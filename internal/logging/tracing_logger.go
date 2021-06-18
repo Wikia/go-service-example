@@ -1,6 +1,8 @@
 package logging
 
-import "go.uber.org/zap"
+import (
+	"go.uber.org/zap"
+)
 
 //TracingLogger this is the wrapper around zap.SugaredLogger that implements interface used by jaeger library
 type TracingLogger struct {

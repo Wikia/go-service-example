@@ -1,7 +1,9 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
+	"context"
+
+	"gorm.io/gorm"
 )
 
 type Employee struct {
@@ -16,23 +18,23 @@ func InitData(db *gorm.DB) {
 	db.Create(&Employee{Id: 2, Name: "Łukasz", City: "Poznań"})
 }
 
-func AllEmployees(db *gorm.DB) (people []Employee, err error) {
-	err = db.Find(&people).Error
+func AllEmployees(ctx context.Context, db *gorm.DB) (people []Employee, err error) {
+	err = db.WithContext(ctx).Find(&people).Error
 	return
 }
 
-func AddEmployee(db *gorm.DB, newEmployee *Employee) (err error) {
-	err = db.Create(newEmployee).Error
+func AddEmployee(ctx context.Context, db *gorm.DB, newEmployee *Employee) (err error) {
+	err = db.WithContext(ctx).Create(newEmployee).Error
 	return
 }
 
-func GetEmployee(db *gorm.DB, employeeId string) (*Employee, error) {
+func GetEmployee(ctx context.Context, db *gorm.DB, employeeId string) (*Employee, error) {
 	employee := Employee{}
-	err := db.First(&employee, employeeId).Error
+	err := db.WithContext(ctx).First(&employee, employeeId).Error
 	return &employee, err
 }
 
-func DeleteEmployee(db *gorm.DB, employeeId string) (err error) {
-	err = db.Delete(&Employee{}, employeeId).Error
+func DeleteEmployee(ctx context.Context, db *gorm.DB, employeeId string) (err error) {
+	err = db.WithContext(ctx).Delete(&Employee{}, employeeId).Error
 	return
 }

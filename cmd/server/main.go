@@ -10,15 +10,15 @@ import (
 	"github.com/Wikia/go-example-service/cmd/server/handlers"
 	"github.com/Wikia/go-example-service/cmd/server/metrics"
 	"github.com/Wikia/go-example-service/cmd/server/models"
-	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/ardanlabs/conf"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	gormopentracing "gorm.io/plugin/opentracing"
 )
 
 // build is the git version of this program. It is set using build flags in the makefile.
@@ -109,21 +109,15 @@ func run() error {
 	// =========================================================================
 	// DB
 
-	db, err := gorm.Open(cfg.DB.Driver, cfg.DB.Database)
+	db, err := gorm.Open(sqlite.Open(cfg.DB.Database), &gorm.Config{})
 	if err != nil {
 		sugared.With("error", err).Panic("failed to connect database")
 	}
-	db.SetLogger(&logging.TracingLogger{Logger: sugared})
-
-	defer func() {
-		err := db.Close()
-		if err != nil {
-			sugared.With("error", err).Error("error while closing database handler")
-		}
-	}()
 
 	//Init for this example
-	if !db.HasTable(models.Employee{}) {
+	var numEmployees int64
+	db.Model(&models.Employee{}).Count(&numEmployees)
+	if numEmployees == 0 {
 		models.InitData(db)
 	}
 
@@ -147,6 +141,11 @@ func run() error {
 			sugared.With("error", err).Error("could not close tracer")
 		}
 	}()
+
+	err = db.Use(gormopentracing.New(gormopentracing.WithTracer(tracer)))
+	if err != nil {
+		sugared.With("error", err).Error("could not initialize tracing for the database")
+	}
 
 	go func() {
 		internal := handlers.Internal(logger)
