@@ -29,6 +29,8 @@ func API(logger *zap.Logger, appName string, db *gorm.DB) *gin.Engine {
 		{
 			employee.GET("/all", AllEmployees(db))
 			employee.PUT("/", CreateEmployee(db))
+			employee.GET("/:id", GetEmployee(db))
+			employee.DELETE("/:id", DeleteEmployee(db))
 		}
 	}
 

@@ -41,3 +41,37 @@ func CreateEmployee(db *gorm.DB) func(ctx *gin.Context) {
 		ctx.Status(http.StatusAccepted)
 	}
 }
+
+func GetEmployee(db *gorm.DB) func (ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		logger := zap.S()
+		employeeId := ctx.Param("id")
+		logger.With("id", employeeId).Info("looking up employee")
+		e, err := models.GetEmployee(db, employeeId)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		if e == nil {
+			ctx.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, e)
+	}
+}
+
+func DeleteEmployee(db *gorm.DB) func (ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		logger := zap.S()
+		employeeId := ctx.Param("id")
+		logger.With("id", employeeId).Info("deleteing employee")
+		err := models.DeleteEmployee(db, employeeId)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.Status(http.StatusAccepted)
+	}
+}

@@ -25,3 +25,14 @@ func AddEmployee(db *gorm.DB, newEmployee *Employee) (err error) {
 	err = db.Create(newEmployee).Error
 	return
 }
+
+func GetEmployee(db *gorm.DB, employeeId string) (*Employee, error) {
+	employee := Employee{}
+	err := db.First(&employee, employeeId).Error
+	return &employee, err
+}
+
+func DeleteEmployee(db *gorm.DB, employeeId string) (err error) {
+	err = db.Delete(&Employee{}, employeeId).Error
+	return
+}
