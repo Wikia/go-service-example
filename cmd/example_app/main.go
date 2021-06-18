@@ -14,12 +14,13 @@ import (
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/handlers"
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/metrics"
 	"github.com/Wikia/go-example-service/cmd/example_app/internal/models"
+	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/ardanlabs/conf"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/harnash/go-middlewares/http_metrics"
 	"github.com/harnash/go-middlewares/recovery"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
@@ -116,6 +117,7 @@ func run() error {
 	if err != nil {
 		sugared.With("error", err).Panic("failed to connect database")
 	}
+	db.SetLogger(&logging.TracingLogger{Logger: sugared})
 
 	defer func() {
 		err := db.Close()

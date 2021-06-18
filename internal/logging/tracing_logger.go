@@ -16,3 +16,8 @@ func (l *TracingLogger) Error(msg string) {
 func (l *TracingLogger) Infof(msg string, args ...interface{}) {
 	l.Logger.Infof(msg, args...)
 }
+
+//Print to conform with other logger interfaces
+func (l *TracingLogger) Print(args ...interface{}) {
+	l.Logger.Info(args...)
+}
