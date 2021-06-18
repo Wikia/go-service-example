@@ -48,12 +48,11 @@ func GetEmployee(db *gorm.DB) func (ctx *gin.Context) {
 		employeeId := ctx.Param("id")
 		logger.With("id", employeeId).Info("looking up employee")
 		e, err := models.GetEmployee(db, employeeId)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		if e == nil {
+		if err == gorm.ErrRecordNotFound {
 			ctx.AbortWithStatus(http.StatusNotFound)
+			return
+		} else if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
