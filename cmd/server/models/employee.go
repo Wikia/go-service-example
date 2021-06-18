@@ -13,10 +13,15 @@ type Employee struct {
 	City string
 }
 
-func InitData(db *gorm.DB) {
-	db.AutoMigrate(&Employee{})
+func InitData(db *gorm.DB) (err error) {
+	err = db.AutoMigrate(&Employee{})
+	if err != nil {
+		return
+	}
 	db.Create(&Employee{Id: 1, Name: "Przemek", City: "Olsztyn"})
 	db.Create(&Employee{Id: 2, Name: "Łukasz", City: "Poznań"})
+
+	return
 }
 
 func AllEmployees(ctx context.Context, db *gorm.DB) (people []Employee, err error) {

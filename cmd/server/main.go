@@ -118,7 +118,9 @@ func run() error {
 	var numEmployees int64
 	db.Model(&models.Employee{}).Count(&numEmployees)
 	if numEmployees == 0 {
-		models.InitData(db)
+		if err = models.InitData(db); err != nil {
+			sugared.With("error", err).Error("error while initializing sample database data")
+		}
 	}
 
 	// Print the build version for our logs. Also expose it under /debug/vars.
