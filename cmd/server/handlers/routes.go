@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/brpaz/echozap"
+	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -21,7 +21,7 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 	traceMiddleware := jaegertracing.TraceWithConfig(traceConfig)
 
 	r.Use(
-		echozap.ZapLogger(logger),
+		logging.EchoLoggger(logger),
 		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 		traceMiddleware,
 	)

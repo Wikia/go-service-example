@@ -2,7 +2,7 @@ package handlers
 
 import (
 	internalHandlers "github.com/Wikia/go-example-service/internal/handlers"
-	"github.com/brpaz/echozap"
+	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -15,7 +15,7 @@ func Internal(logger *zap.Logger) *echo.Echo {
 	r := echo.New()
 
 	r.Use(
-		echozap.ZapLogger(logger),
+		logging.EchoLoggger(logger),
 		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 		)
 
