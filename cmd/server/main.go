@@ -3,7 +3,9 @@ package main
 import (
 	"expvar"
 	"fmt"
+	gormlogger "gorm.io/gorm/logger"
 	"log"
+	"moul.io/zapgorm2"
 	"os"
 	"time"
 
@@ -109,7 +111,9 @@ func run() error {
 	// =========================================================================
 	// DB
 
-	db, err := gorm.Open(sqlite.Open(cfg.DB.Database), &gorm.Config{})
+	dbLogger := zapgorm2.New(logger)
+	dbLogger.SetAsDefault()
+	db, err := gorm.Open(sqlite.Open(cfg.DB.Database), &gorm.Config{Logger: dbLogger.LogMode(gormlogger.Info)})
 	if err != nil {
 		sugared.With("error", err).Panic("failed to connect database")
 	}
