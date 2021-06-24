@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/labstack/echo-contrib/jaegertracing"
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -19,12 +20,15 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 	traceConfig.Tracer = tracer
 
 	traceMiddleware := jaegertracing.TraceWithConfig(traceConfig)
+	promMetrics := prometheus.NewPrometheus("http", func(c echo.Context) bool { return false })
 
 	r.Use(
 		logging.EchoLoggger(logger),
 		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 		traceMiddleware,
 	)
+
+	promMetrics.Use(r)
 
 	example := r.Group("/example")
 	{
