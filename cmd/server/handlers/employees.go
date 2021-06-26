@@ -9,12 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Employee struct {
-	Id   int
-	Name string
-	City string
-}
-
 func All(db *gorm.DB) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		logger := logging.FromEchoContext(ctx)
@@ -36,6 +30,9 @@ func CreateEmployee(db *gorm.DB) func(ctx echo.Context) error {
 		e := &models.Employee{}
 		if err := ctx.Bind(e); err != nil {
 			return err
+		}
+		if err := ctx.Validate(e); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 		logger.With("employee", e).Info("creating new employee")
 		if err := models.AddEmployee(ctx.Request().Context(), db, e); err != nil {

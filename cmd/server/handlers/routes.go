@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/Wikia/go-example-service/internal/logging"
+	"github.com/Wikia/go-example-service/internal/validator"
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
@@ -29,6 +30,7 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 	)
 
 	promMetrics.Use(r)
+	r.Validator = &validator.EchoValidator{}
 
 	example := r.Group("/example")
 	{

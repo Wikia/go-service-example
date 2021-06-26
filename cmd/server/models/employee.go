@@ -8,8 +8,8 @@ import (
 
 type Employee struct {
 	Id   int
-	Name string
-	City string
+	Name string `validate:"required,gt=3"`
+	City string `validate:"required,gt=4"`
 }
 
 func InitData(db *gorm.DB) (err error) {

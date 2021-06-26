@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/ardanlabs/conf v1.4.0
+	github.com/go-playground/validator/v10 v10.6.1 // indirect
 	github.com/labstack/echo-contrib v0.11.0
 	github.com/labstack/echo/v4 v4.3.0
 	github.com/labstack/gommon v0.3.0
