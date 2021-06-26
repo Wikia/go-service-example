@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"github.com/Wikia/go-example-service/internal/logging"
 	"net/http"
 
 	"github.com/Wikia/go-example-service/cmd/server/metrics"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 )
 
 type Message struct {
@@ -13,7 +13,7 @@ type Message struct {
 }
 
 func Hello(ctx echo.Context) error {
-	logger := zap.S()
+	logger := logging.FromEchoContext(ctx)
 	logger.Info("Greeting user")
 	defer metrics.GreetCount.Inc()
 

@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"github.com/Wikia/go-example-service/internal/logging"
 	"net/http"
 
 	"github.com/Wikia/go-example-service/cmd/server/models"
 	"github.com/labstack/echo/v4"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +17,7 @@ type Employee struct {
 
 func All(db *gorm.DB) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
-		logger := zap.S()
+		logger := logging.FromEchoContext(ctx)
 		logger.Info("Fetching list of all employees")
 
 		people, err := models.AllEmployees(ctx.Request().Context(), db)
@@ -32,7 +32,7 @@ func All(db *gorm.DB) func(ctx echo.Context) error {
 
 func CreateEmployee(db *gorm.DB) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
-		logger := zap.S()
+		logger := logging.FromEchoContext(ctx).Sugar()
 		e := &models.Employee{}
 		if err := ctx.Bind(e); err != nil {
 			return err
@@ -47,7 +47,7 @@ func CreateEmployee(db *gorm.DB) func(ctx echo.Context) error {
 
 func GetEmployee(db *gorm.DB) func (ctx echo.Context) error {
 	return func(ctx echo.Context) error {
-		logger := zap.S()
+		logger := logging.FromEchoContext(ctx).Sugar()
 		employeeId := ctx.Param("id")
 		logger.With("id", employeeId).Info("looking up employee")
 		e, err := models.GetEmployee(ctx.Request().Context(), db, employeeId)
@@ -63,7 +63,7 @@ func GetEmployee(db *gorm.DB) func (ctx echo.Context) error {
 
 func DeleteEmployee(db *gorm.DB) func (ctx echo.Context) error {
 	return func(ctx echo.Context) error {
-		logger := zap.S()
+		logger := logging.FromEchoContext(ctx).Sugar()
 		employeeId := ctx.Param("id")
 		logger.With("id", employeeId).Info("deleting employee")
 		err := models.DeleteEmployee(ctx.Request().Context(), db, employeeId)

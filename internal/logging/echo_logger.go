@@ -1,31 +1,47 @@
 package logging
 
 import (
+	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"net/http"
 	"time"
 )
 
-// EchoLoggger is a middleware and zap to provide an "access log" like logging for each request.
-func EchoLoggger(log *zap.Logger) echo.MiddlewareFunc {
+type key int
+const loggerIDKey key = 119
+
+// EchoLogger is a middleware and zap to provide an "access log" like logging for each request.
+func EchoLogger(log *zap.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			start := time.Now()
+			req := c.Request()
+			var traceId string
 
-			err := next(c)
-			var logger *zap.Logger
-			if err != nil {
-				c.Error(err)
-				logger = log.With(zap.Error(err))
-			} else {
-				logger = log
+			if span := opentracing.SpanFromContext(req.Context()); span != nil {
+				if sc, ok := span.Context().(jaeger.SpanContext); ok {
+					traceId = sc.TraceID().String()
+				}
 			}
 
-			req := c.Request()
+			var logger = log
+			if traceId != "" {
+				logger = log.With(zap.String("trace_id", traceId))
+			}
+			c.SetRequest(req.WithContext(addLoggerToContext(req.Context(), logger)))
+
+			err := next(c)
+
+			if err != nil {
+				c.Error(err)
+				logger = logger.With(zap.Error(err))
+			}
+
 			res := c.Response()
 
 			fields := []zapcore.Field{
@@ -43,10 +59,8 @@ func EchoLoggger(log *zap.Logger) echo.MiddlewareFunc {
 				id = res.Header().Get(echo.HeaderXRequestID)
 				fields = append(fields, zap.String("request_id", id))
 			}
-			if span := opentracing.SpanFromContext(req.Context()); span != nil {
-				if sc, ok := span.Context().(jaeger.SpanContext); ok {
-					fields = append(fields, zap.String("trace_id", sc.TraceID().String()))
-				}
+			if traceId != "" {
+				fields = append(fields, zap.String("trace_id", traceId))
 			}
 
 			n := res.Status
@@ -64,4 +78,27 @@ func EchoLoggger(log *zap.Logger) echo.MiddlewareFunc {
 			return nil
 		}
 	}
+}
+
+func FromEchoContext(ctx echo.Context) *zap.Logger {
+	return FromContext(ctx.Request().Context())
+}
+
+// FromRequest will return current logger embedded in the given request object
+func FromRequest(r *http.Request) *zap.Logger {
+	return FromContext(r.Context())
+}
+
+// FromContext will return current logger from the given context.Context object
+func FromContext(ctx context.Context) *zap.Logger {
+	logger := ctx.Value(loggerIDKey)
+	if logger == nil {
+		return nil
+	}
+	return logger.(*zap.Logger)
+}
+
+// addLoggerToContext adds given logger to the context.Context and returns new context
+func addLoggerToContext(ctx context.Context, logger *zap.Logger) context.Context {
+	return context.WithValue(ctx, loggerIDKey, logger)
 }

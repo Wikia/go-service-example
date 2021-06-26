@@ -7,5 +7,5 @@ import (
 )
 
 func Readiness(ctx echo.Context) error {
-	return ctx.String(http.StatusOK, "")
+	return ctx.NoContent(http.StatusOK)
 }

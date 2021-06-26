@@ -15,7 +15,7 @@ func Internal(logger *zap.Logger) *echo.Echo {
 	r := echo.New()
 
 	r.Use(
-		logging.EchoLoggger(logger),
+		logging.EchoLogger(logger),
 		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 		)
 

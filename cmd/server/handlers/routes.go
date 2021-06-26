@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// API constructs an http.Handler with all application routes defined.
+// API constructs a http.Handler with all application routes defined.
 func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm.DB) *echo.Echo {
 	r := echo.New()
 	traceConfig := jaegertracing.DefaultTraceConfig
@@ -23,9 +23,9 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 	promMetrics := prometheus.NewPrometheus("http", func(c echo.Context) bool { return false })
 
 	r.Use(
-		logging.EchoLoggger(logger),
-		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 		traceMiddleware,
+		logging.EchoLogger(logger),
+		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 	)
 
 	promMetrics.Use(r)

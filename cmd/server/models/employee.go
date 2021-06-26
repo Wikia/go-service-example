@@ -2,7 +2,6 @@ package models
 
 import (
 	"context"
-
 	"github.com/opentracing/opentracing-go"
 	"gorm.io/gorm"
 )
