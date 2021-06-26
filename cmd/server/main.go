@@ -37,7 +37,7 @@ func main() {
 
 func run() error {
 	var cfg struct {
-		Environment string `conf:"default:prod,name of the environment app is running in (prod/dev/localhost)"`
+		Environment string `conf:"default:prod,help:name of the environment app is running in (prod/dev/localhost)"`
 		Datacenter  string `conf:"help:name of the environment app is running on"`
 		K8S         struct {
 			PodName string `conf:"help:name of the pod running the app"`
@@ -51,7 +51,7 @@ func run() error {
 			ShutdownTimeout time.Duration `conf:"default:5s"`
 		}
 		Logging struct {
-			Type  string `conf:"default:prod"`
+			Type  string `conf:"default:prod,help:can be one of prod/dev/localhost"`
 			Level string `conf:"default:info"`
 		}
 		DB struct {
@@ -156,7 +156,7 @@ func run() error {
 	go func() {
 		internal := handlers.Internal(logger)
 		internal.HideBanner = true // no need to see it twice
-		internal.HidePort = cfg.Environment != "dev"
+		internal.HidePort = cfg.Environment != "localhost"
 		err = internal.Start(cfg.Web.InternalHost)
 		if err != nil {
 			sugared.With("error", err).Fatal("error starting internal server")
@@ -164,8 +164,8 @@ func run() error {
 	}()
 
 	api := handlers.API(logger, tracer, AppName, db)
-	api.HideBanner = cfg.Environment != "dev"
-	api.HidePort = cfg.Environment != "dev"
+	api.HideBanner = cfg.Environment != "localhost"
+	api.HidePort = cfg.Environment != "localhost"
 
 	err = api.Start(cfg.Web.APIHost)
 	if err != nil {
