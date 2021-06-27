@@ -12,6 +12,7 @@
 *.out
 
 tmp/
+bin/
 
 # idea ide
 .idea

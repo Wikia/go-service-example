@@ -3,6 +3,7 @@ package main
 import (
 	"expvar"
 	"fmt"
+	"github.com/Wikia/go-example-service/version"
 	gormlogger "gorm.io/gorm/logger"
 	"log"
 	"moul.io/zapgorm2"
@@ -22,9 +23,6 @@ import (
 	"gorm.io/gorm"
 	gormopentracing "gorm.io/plugin/opentracing"
 )
-
-// build is the git version of this program. It is set using build flags in the makefile.
-var build = "develop"
 
 const AppName = "example"
 
@@ -102,9 +100,16 @@ func run() error {
 	if err != nil {
 		panic(fmt.Sprintf("could not initialize log: %v", err))
 	}
-	sugared := logger.Sugar().With("appname", AppName, "environment", cfg.Environment, "datacenter", cfg.Datacenter, "pod_name", cfg.K8S.PodName)
+	logger = logger.With(
+		zap.String("appname", AppName),
+		zap.String("version", version.Version),
+		zap.String("build_date", version.BuildDate),
+		zap.String("environment", cfg.Environment),
+		zap.String("datacenter", cfg.Datacenter),
+		zap.String("pod_name", cfg.K8S.PodName),
+		)
 
-	sugared.With("config", cfg).Info("Starting service")
+	logger.With(zap.Reflect("config", cfg)).Info("Starting service")
 
 	zap.ReplaceGlobals(logger)
 
@@ -115,7 +120,7 @@ func run() error {
 	dbLogger.SetAsDefault()
 	db, err := gorm.Open(sqlite.Open(cfg.DB.Database), &gorm.Config{Logger: dbLogger.LogMode(gormlogger.Info)})
 	if err != nil {
-		sugared.With("error", err).Panic("failed to connect database")
+		logger.With(zap.Error(err)).Panic("failed to connect database")
 	}
 
 	//Init for this example
@@ -123,34 +128,33 @@ func run() error {
 	db.Model(&models.Employee{}).Count(&numEmployees)
 	if numEmployees == 0 {
 		if err = models.InitData(db); err != nil {
-			sugared.With("error", err).Error("error while initializing sample database data")
 		}
 	}
 
 	// Print the build version for our logs. Also expose it under /debug/vars.
-	expvar.NewString("build").Set(build)
-	sugared.With("version", build).Info("Started : Application initializing")
-	defer sugared.Info("Application terminated")
+	expvar.NewString("build").Set(version.GitCommit)
+	logger.Info("Started : Application initializing")
+	defer logger.Info("Application terminated")
 
 	// metrics
 	registry := prometheus.DefaultRegisterer
 	metrics.RegisterMetrics(prometheus.WrapRegistererWithPrefix(fmt.Sprintf("%s_", AppName), registry))
 
 	// tracer
-	tracer, closer, err := tracing.InitJaegerTracer(AppName, sugared, registry)
+	tracer, closer, err := tracing.InitJaegerTracer(AppName, logger.Sugar(), registry)
 	if err != nil {
 		return errors.Wrap(err, "error initializing tracer")
 	}
 	defer func() {
 		err := closer.Close()
 		if err != nil {
-			sugared.With("error", err).Error("could not close tracer")
+			logger.With(zap.Error(err)).Error("could not close tracer")
 		}
 	}()
 
 	err = db.Use(gormopentracing.New(gormopentracing.WithTracer(tracer)))
 	if err != nil {
-		sugared.With("error", err).Error("could not initialize tracing for the database")
+		logger.With(zap.Error(err)).Error("could not initialize tracing for the database")
 	}
 
 	go func() {
@@ -159,7 +163,7 @@ func run() error {
 		internal.HidePort = cfg.Environment != "localhost"
 		err = internal.Start(cfg.Web.InternalHost)
 		if err != nil {
-			sugared.With("error", err).Fatal("error starting internal server")
+			logger.With(zap.Error(err)).Fatal("error starting internal server")
 		}
 	}()
 
@@ -169,7 +173,7 @@ func run() error {
 
 	err = api.Start(cfg.Web.APIHost)
 	if err != nil {
-		sugared.With("error", err).Fatal("error starting server")
+		logger.With(zap.Error(err)).Fatal("error starting server")
 	}
 
 	return nil

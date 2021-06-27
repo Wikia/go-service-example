@@ -30,6 +30,7 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 	)
 
 	promMetrics.Use(r)
+	// request/form validation
 	r.Validator = &validator.EchoValidator{}
 
 	example := r.Group("/example")
