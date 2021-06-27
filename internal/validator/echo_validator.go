@@ -37,7 +37,6 @@ func (v *EchoValidator) lazyInit() {
 }
 
 func kindOfData(data interface{}) reflect.Kind {
-
 	value := reflect.ValueOf(data)
 	valueType := value.Kind()
 
