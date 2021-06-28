@@ -159,7 +159,7 @@ func run() error {
 
 	go func() {
 		internal := handlers.Internal(logger)
-		internal.HideBanner = true // no need to see it twice
+		internal.HideBanner = cfg.Environment != "localhost"
 		internal.HidePort = cfg.Environment != "localhost"
 		err = internal.Start(cfg.Web.InternalHost)
 		if err != nil {
@@ -168,7 +168,7 @@ func run() error {
 	}()
 
 	api := handlers.API(logger, tracer, AppName, db)
-	api.HideBanner = cfg.Environment != "localhost"
+	api.HideBanner = true // no need to see it twice
 	api.HidePort = cfg.Environment != "localhost"
 
 	err = api.Start(cfg.Web.APIHost)
