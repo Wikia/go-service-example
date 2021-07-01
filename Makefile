@@ -1,5 +1,4 @@
-.PHONY: build build-alpine clean test help default
-
+.PHONY: build build-alpine clean test help default lint run-local
 
 BIN_NAME=example
 GITHUB_REPO=github.com/wikia/go-example-service
@@ -13,10 +12,10 @@ GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 BUILD_DATE=$(shell date '+%Y-%m-%d-%H:%M:%S')
 IMAGE_NAME := "artifactory.wikia-inc.com/services/${BIN_NAME}"
 
+default: test
+
 $(GOLANGCI_LINT):
 	brew install golangci-lint
-
-default: test
 
 help:
 	@echo 'Management commands for ${BIN_NAME}:'
