@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    traefik.frontend.rule.type: PathPrefixStrip
+  name: go-example-service
+spec:
+  replicas: 0
+  template:
+    spec:
+      containers:
+        - env:
+            - name: HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: DATACENTER
+              valueFrom:
+                configMapKeyRef:
+                  key: datacenter
+                  name: go-example-service
+            - name: JAEGER_AGENT_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger_agent_host
+                  name: go-example-service
+            - name: JAEGER_SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger_service_name
+                  name: go-example-service
+            - name: JAEGER_REPORTER_LOG_SPANS
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger_reporter_log_spans
+                  name: go-example-service
+            - name: JAEGER_AGENT_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger_agent_port
+                  name: go-example-service
+            - name: JAEGER_SAMPLER_PARAM
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger_sampler_param
+                  name: go-example-service
+            - name: JAEGER_SAMPLER_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  key: jaeger_sampler_type
+                  name: go-example-service
+          image: artifactory.wikia-inc.com/services/go-example-service:v0.0.0
+          name: go-example-service
+          livenessProbe:
+            httpGet:
+              path: /health/alive
+              port: 4000
+            initialDelaySeconds: 2
+            periodSeconds: 10
+            timeoutSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          resources:
+            limits:
+              memory: 250Mi
+            requests:
+              cpu: 100m
+              memory: 50Mi
+          volumeMounts: # MOUNT THE SECRETS INTO YOUR CONTAINER
+            - name: secrets-dir
+              readOnly: true
+              mountPath: /secrets
+        - command:
+            - /go/bin/agent-linux
+            - --reporter.grpc.host-port=jaeger-collector:14250
+          image: jaegertracing/jaeger-agent:1.17.1
+          name: jaeger-agent
+          ports:
+            - containerPort: 6831
+              protocol: UDP
+          resources:
+            limits:
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+      volumes:       # all volumes must be defined here
+        - name: secrets-dir # secrets will be stored here
+          emptyDir:
+            medium: Memory

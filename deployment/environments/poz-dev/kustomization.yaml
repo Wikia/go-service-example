@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: dev
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - ../_dev
+  - ../../base
+replicas:
+  - name: go-example-service
+    count: 1
+configMapGenerator:
+  - name: go-example-service
+    behavior: merge
+    literals:
+      - vault_address=active.vault.service.poz.consul:8200
+      - example_datacenter=poz-dev
+      - example_environment=dev

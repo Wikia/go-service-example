@@ -24,6 +24,8 @@ import (
 	gormopentracing "gorm.io/plugin/opentracing"
 )
 
+//AppName should hold unique name of your service.
+//Please be aware that this is also used as a prefix for environment variables used in config
 const AppName = "example"
 
 func main() {

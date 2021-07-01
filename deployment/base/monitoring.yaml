@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: go-example-service
+  labels:
+    app: go-example-service
+spec:
+  jobLabel: app
+  selector:
+    matchLabels:
+      app: go-example-service
+  namespaceSelector:
+    matchNames:
+      - dev
+  endpoints:
+    - port: admin
+      interval: 30s
+  targetLabels:
+    - team

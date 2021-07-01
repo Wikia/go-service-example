@@ -1,0 +1,61 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: go-example-service
+spec:
+  rules:
+    - host: go-example-service.dev.poz-dev.k8s.wikia.net
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: go-example-service
+                port:
+                  name: main
+    - host: dev.poz-dev.k8s.wikia.net
+      http:
+        paths:
+          - path: /go-example-service
+            backend:
+              service:
+                name: go-example-service
+                port:
+                  name: main
+    - host: go-example-service-admin.poz-dev.k8s.wikia.net
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: go-example-service
+                port:
+                  name: admin
+    - host: go-example-service-debug.poz-dev.k8s.wikia.net
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: go-example-service
+                port:
+                  name: debug
+# for exposing service to the world
+    - host: services-k8s.wikia-dev.pl
+      http:
+        paths:
+          - path: /go-example-service
+            backend:
+              service:
+                name: go-example-service
+                port:
+                  name: main
+    - host: services.fandom-dev.pl
+      http:
+        paths:
+          - path: /go-example-service
+            backend:
+              service:
+                name: go-example-service
+                port:
+                  name: main

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-example-service
+spec:
+  template:
+    spec:
+      serviceAccountName: pandora-k8s-pod-dev
+      initContainers:
+        - image: artifactory.wikia-inc.com/ops/init-vault:0.13
+          args: #select your secrets here.  You can also try the --debug flag for verbose logging
+            - SECRET=secret/app/dev/go-example-service/rabbit_credentials.password
+          name: secrets
+          volumeMounts:
+            - name: secrets-dir # secrets are stored here
+              mountPath: /var/lib/secrets
+          env:
+            - name: VAULT_ADDR # This works fine by default in prod but must be overridden in dev
+              valueFrom:
+                configMapKeyRef:
+                  key: vault_address
+                  name: go-example-service
+            - name: ENV
+              valueFrom:
+                configMapKeyRef:
+                  key: jobrunner_environment
+                  name: go-example-service
