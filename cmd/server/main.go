@@ -106,6 +106,7 @@ func run() error {
 		zap.String("appname", AppName),
 		zap.String("version", version.Version),
 		zap.String("git_commit", version.GitCommit),
+		zap.String("git_branch", version.GitBranch),
 		zap.String("build_date", version.BuildDate),
 		zap.String("environment", cfg.Environment),
 		zap.String("datacenter", cfg.Datacenter),

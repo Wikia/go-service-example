@@ -6,8 +6,8 @@ BIN_DIR := $(GOPATH)/bin
 GOLANGCI_LINT := /usr/local/bin/golangci-lint
 CURRENT_DIR := $(shell pwd)
 
-VERSION := $(shell git describe --tags --exact-match 2>/dev/null || git symbolic-ref -q --short HEAD)
-VERSION := $(shell grep "const Version " version/version.go | sed -E 's/.*"(.+)"$$/\1/')
+VERSION := $(shell git describe --tags --exact-match 2>/dev/null)
+GIT_BRANCH := $(shell git symbolic-ref -q --short HEAD)
 GIT_COMMIT = $(shell git rev-parse --short HEAD)
 GIT_DIRTY = $(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 BUILD_DATE = $(shell date '+%Y-%m-%d-%H:%M:%S')
@@ -40,7 +40,7 @@ lint: $(GOLANGCI_LINT)
 build:
 	@echo "building ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
-	go build -ldflags "-X ${GITHUB_REPO}/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X ${GITHUB_REPO}/version.BuildDate=${BUILD_DATE} -X ${GITHUB_REPO}/version.Version=${VERSION}" -o bin/${BIN_NAME} cmd/server/main.go
+	go build -ldflags "-X ${GITHUB_REPO}/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X ${GITHUB_REPO}/version.BuildDate=${BUILD_DATE} -X ${GITHUB_REPO}/version.Version=${VERSION} -X ${GITHUB_REPO}/version.GitBranch=${GIT_BRANCH}" -o bin/${BIN_NAME} cmd/server/main.go
 
 get-deps:
 	go mod install
@@ -48,7 +48,7 @@ get-deps:
 build-alpine:
 	@echo "building ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
-	go build -ldflags '-w -linkmode external -extldflags "-static" -X ${GITHUB_REPO}/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X ${GITHUB_REPO}/version.BuildDate=${BUILD_DATE} -X ${GITHUB_REPO}/version.Version=${VERSION}' -o bin/${BIN_NAME} cmd/server/main.go
+	go build -ldflags '-w -linkmode external -extldflags "-static" -X ${GITHUB_REPO}/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X ${GITHUB_REPO}/version.BuildDate=${BUILD_DATE} -X ${GITHUB_REPO}/version.Version=${VERSION} -X ${GITHUB_REPO}/version.GitBranch=${GIT_BRANCH}' -o bin/${BIN_NAME} cmd/server/main.go
 
 package:
 	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
