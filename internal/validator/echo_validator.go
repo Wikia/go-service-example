@@ -33,6 +33,7 @@ func (v *EchoValidator) lazyInit() {
 	v.once.Do(func() {
 		v.validate = validator.New()
 		// add any custom validations etc. here
+		// see: https://pkg.go.dev/github.com/go-playground/validator/v10
 	})
 }
 
