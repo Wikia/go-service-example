@@ -105,6 +105,7 @@ func run() error {
 	logger = logger.With(
 		zap.String("appname", AppName),
 		zap.String("version", version.Version),
+		zap.String("git_commit", version.GitCommit),
 		zap.String("build_date", version.BuildDate),
 		zap.String("environment", cfg.Environment),
 		zap.String("datacenter", cfg.Datacenter),
