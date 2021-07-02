@@ -10,7 +10,7 @@ tmp_dir = "tmp"
   exclude_regex = []
   exclude_unchanged = false
   follow_symlink = false
-  full_bin = "EXAMPLE_ENVIRONMENT=localhost EXAMPLE_LOGGING_TYPE=localhost ./tmp/server"
+  full_bin = "./tmp/server"
   include_dir = []
   include_ext = ["go", "tpl", "tmpl", "html"]
   kill_delay = "0s"

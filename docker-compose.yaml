@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  runner:
+    environment:
+      - EXAMPLE_ENVIRONMENT=localhost
+      - EXAMPLE_LOGGING_TYPE=localhost
+      - EXAMPLE_DB_SOURCES=root@tcp(mysql:3306)/example?charset=utf8mb4&parseTime=True&loc=Local
+    image: cosmtrek/air
+    ports:
+      - "3000:3000"
+      - "4000:4000"
+      - "5000:5000"
+    working_dir: /example
+    volumes:
+      - .:/example
+      - golang_cache:/go/pkg/
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+    ports:
+      - "3306:3306"
+volumes:
+  golang_cache:

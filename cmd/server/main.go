@@ -3,10 +3,7 @@ package main
 import (
 	"expvar"
 	"fmt"
-	"github.com/Wikia/go-example-service/version"
-	gormlogger "gorm.io/gorm/logger"
-	"log"
-	"moul.io/zapgorm2"
+	"github.com/Wikia/go-example-service/internal/database"
 	"os"
 	"time"
 
@@ -19,9 +16,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	gormopentracing "gorm.io/plugin/opentracing"
+)
+
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	builtBy = "unknown"
 )
 
 //AppName should hold unique name of your service.
@@ -30,7 +32,7 @@ const AppName = "example"
 
 func main() {
 	if err := run(); err != nil {
-		log.Println("error :", err)
+		zap.L().With(zap.Error(err)).Error("error running service")
 		os.Exit(1)
 	}
 }
@@ -59,7 +61,12 @@ func run() error {
 			User     string `conf:"default:root"`
 			Password string `conf:"default:root"`
 			Host     string `conf:"default:localhost"`
-			Database string `conf:"default:test.db"`
+			Sources  []string
+			Replicas []string
+			ConnMaxIdleTime time.Duration `conf:"default:1h"`
+			ConnMaxLifeTime time.Duration `conf:"default:12h"`
+			MaxIdleConns int `conf:"default:10"` // tune this to your needs
+			MaxOpenConns int `conf:"default:20"` // this as well
 		}
 	}
 
@@ -104,41 +111,42 @@ func run() error {
 	}
 	logger = logger.With(
 		zap.String("appname", AppName),
-		zap.String("version", version.Version),
-		zap.String("git_commit", version.GitCommit),
-		zap.String("git_branch", version.GitBranch),
-		zap.String("build_date", version.BuildDate),
+		zap.String("version", version),
+		zap.String("git_commit", commit),
+		zap.String("build_date", date),
+		zap.String("build_by", builtBy),
 		zap.String("environment", cfg.Environment),
 		zap.String("datacenter", cfg.Datacenter),
 		zap.String("pod_name", cfg.K8S.PodName),
 		)
 
-	logger.With(zap.Reflect("config", cfg)).Info("Starting service")
+	logger.With(zap.Reflect("config", cfg)).Info("starting service")
 
 	zap.ReplaceGlobals(logger)
 
 	// =========================================================================
 	// DB
-
-	dbLogger := zapgorm2.New(logger)
-	dbLogger.SetAsDefault()
-	db, err := gorm.Open(sqlite.Open(cfg.DB.Database), &gorm.Config{Logger: dbLogger.LogMode(gormlogger.Info)})
+	db, err := database.GetConnection(logger, cfg.DB.Sources, cfg.DB.Replicas, cfg.DB.ConnMaxIdleTime, cfg.DB.ConnMaxLifeTime, cfg.DB.MaxIdleConns, cfg.DB.MaxOpenConns)
 	if err != nil {
-		logger.With(zap.Error(err)).Panic("failed to connect database")
+		logger.With(zap.Error(err)).Panic("could not connect to the database")
 	}
 
 	//Init for this example
-	var numEmployees int64
-	db.Model(&models.Employee{}).Count(&numEmployees)
-	if numEmployees == 0 {
+	res := db.Raw("SHOW TABLES LIKE 'employees'")
+	var result string
+	err = res.Row().Scan(&result)
+	if err != nil || len(result) == 0 {
+		logger.Info("no tables found - initializing database")
 		if err = models.InitData(db); err != nil {
+			logger.With(zap.Error(err)).Warn("could not initialize database")
 		}
 	}
 
 	// Print the build version for our logs. Also expose it under /debug/vars.
-	expvar.NewString("build").Set(version.GitCommit)
-	logger.Info("Started : Application initializing")
-	defer logger.Info("Application terminated")
+	expvar.NewString("build").Set(commit)
+	expvar.NewString("version").Set(version)
+	logger.Info("started: Application initializing")
+	defer logger.Info("application terminated")
 
 	// metrics
 	registry := prometheus.DefaultRegisterer

@@ -1,0 +1,30 @@
+  before:
+    hooks:
+      - go mod download
+  builds:
+    - goos:
+        - darwin
+        - linux
+        - windows
+      goarch:
+        - amd64
+      main: ./cmd/server/main.go
+  archives:
+    - format_overrides:
+        - goos: windows
+          format: zip
+  release:
+    github:
+    prerelease: auto
+  dockers:
+    - goos: linux
+      goarch: amd64
+      image_templates:
+        - "artifactory.wikia-inc.com/services/{{ .ProjectName }}:{{ .Major }}.{{ .Minor }}.{{ .Patch }}"
+      build_flag_templates:
+        - "--pull"
+        - "--label=org.opencontainers.image.created={{.Date}}"
+        - "--label=org.opencontainers.image.name={{.ProjectName}}"
+        - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+        - "--label=org.opencontainers.image.version={{.Version}}"
+        - "--label=org.opencontainers.image.source={{.GitURL}}"

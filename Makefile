@@ -4,10 +4,10 @@ BIN_NAME = example
 GITHUB_REPO = github.com/wikia/go-example-service
 BIN_DIR := $(GOPATH)/bin
 GOLANGCI_LINT := /usr/local/bin/golangci-lint
+GORELEASER := /usr/local/bin/goreleaser
 CURRENT_DIR := $(shell pwd)
 
-VERSION := $(shell git describe --tags --exact-match 2>/dev/null)
-GIT_BRANCH := $(shell git symbolic-ref -q --short HEAD)
+VERSION := $(shell git describe --tags --exact-match 2>/dev/null || echo "unknown")
 GIT_COMMIT = $(shell git rev-parse --short HEAD)
 GIT_DIRTY = $(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 BUILD_DATE = $(shell date '+%Y-%m-%d-%H:%M:%S')
@@ -18,17 +18,21 @@ default: test
 $(GOLANGCI_LINT):
 	brew install golangci-lint
 
+$(GORELEASER):
+	# this line is only needed to build when using SQLite3
+	brew install FiloSottile/musl-cross/musl-cross
+	brew install goreleaser/tap/goreleaser
+
 help:
 	@echo 'Management commands for ${BIN_NAME}:'
 	@echo
 	@echo 'Usage:'
 	@echo '    make build           Compile the project.'
+	@echo '    make build-docker    Build all releases and docker images but will not publish them.'
+	@echo '    make release         Build all releases and docker image and pushes them out'
 	@echo '    make get-deps        runs dep ensure, mostly used for ci.'
 	@echo '    make build-alpine    Compile optimized for alpine linux.'
-	@echo '    make package         Build final docker image with just the go binary inside'
-	@echo '    make tag             Tag image created by package with latest, git commit and version'
 	@echo '    make test            Run tests on a compiled project.'
-	@echo '    make push            Push tagged images to registry'
 	@echo '    make clean           Clean the directory tree.'
 	@echo '    make lint            Run the linter on the source code'
 	@echo '    make run-local       Run the server locally with live-reload (using local air binary of docker if not found'
@@ -38,29 +42,21 @@ lint: $(GOLANGCI_LINT)
 	golangci-lint run -E revive -E gosec -E gofmt -E goimports
 
 build:
-	@echo "building ${BIN_NAME} ${VERSION}"
-	@echo "GOPATH=${GOPATH}"
-	go build -ldflags "-X ${GITHUB_REPO}/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X ${GITHUB_REPO}/version.BuildDate=${BUILD_DATE} -X ${GITHUB_REPO}/version.Version=${VERSION} -X ${GITHUB_REPO}/version.GitBranch=${GIT_BRANCH}" -o bin/${BIN_NAME} cmd/server/main.go
+	@echo "building ${BIN_NAME}@${VERSION}"
+	go build -ldflags "-X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}" -o bin/${BIN_NAME} cmd/server/main.go
 
 get-deps:
 	go mod install
 
 build-alpine:
-	@echo "building ${BIN_NAME} ${VERSION}"
-	@echo "GOPATH=${GOPATH}"
-	go build -ldflags '-w -linkmode external -extldflags "-static" -X ${GITHUB_REPO}/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X ${GITHUB_REPO}/version.BuildDate=${BUILD_DATE} -X ${GITHUB_REPO}/version.Version=${VERSION} -X ${GITHUB_REPO}/version.GitBranch=${GIT_BRANCH}' -o bin/${BIN_NAME} cmd/server/main.go
+	@echo "building ${BIN_NAME}@${VERSION}"
+	go build -ldflags '-w -linkmode external -extldflags "-static" -X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}' -o bin/${BIN_NAME} cmd/server/main.go
 
-package:
-	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
-	docker build --build-arg VERSION=${VERSION} --build-arg GIT_COMMIT=$(GIT_COMMIT) -t $(IMAGE_NAME):local cmd/server/main.go
+build-docker: $(GORELEASER)
+	goreleaser --snapshot --skip-publish --rm-dist
 
-tag:
-	@echo "Tagging: ${VERSION}"
-	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):${VERSION}
-
-push: tag
-	@echo "Pushing docker image to registry: ${VERSION}"
-	docker push $(IMAGE_NAME):${VERSION}
+release: $(GORELEASER)
+	goreleaser --rm-dist
 
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
@@ -68,14 +64,6 @@ clean:
 test:
 	go test ./...
 
-bump-version:
-	docker run tuplestream/bumpversion minor
-
 run-local:
-ifeq (, $(shell which air))
 	@echo "Running server using docker air image"
-	@docker run -it --rm -w "/example" -e "air_wd=/example" -v ${CURRENT_DIR}:/example -p 3000:3000 -p 4000:4000 -p 5000:5000 cosmtrek/air
-else
-	@echo "Running server using local air binary"
-	@air
-endif
+	@docker compose up --remove-orphans
