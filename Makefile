@@ -60,6 +60,7 @@ release: $(GORELEASER)
 
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
+	@docker compose down
 
 test:
 	go test ./...
