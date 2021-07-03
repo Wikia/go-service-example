@@ -1,0 +1,145 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Example Service
+  description: A sample API that illustrates simple CRUD operations on Employees
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Platform Team
+    email: platform-l@fandom.com
+    url: https://www.fandom.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://www.fandom.com
+paths:
+  /example/hello:
+    get:
+      description: |
+        Returns smiple greeting as an response.
+      operationId: Greet
+      responses:
+        '200':
+          description: greet response
+          content:
+            text/plain:
+              schema:
+                type: string
+  /example/employee/all:
+    get:
+      description: |
+        Returns all employees stored in the system.
+      operationId: GetAllEmployees
+      responses:
+        '200':
+          description: employee list response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeList'
+  /example/employee:
+    put:
+      description: Creates new employee
+      operationId: CreateEmployee
+      requestBody:
+        description: Employee to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEmployee'
+      responses:
+        '202':
+          description: employee response
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /exmaple/employee/{id}:
+    get:
+      description: Returns an employee based on a single ID
+      operationId: FindEmployeeByID
+      parameters:
+        - name: id
+          in: path
+          description: ID of employee to fetch
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: employee response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      description: deletes a single employee based on the ID supplied
+      operationId: DeleteEmployee
+      parameters:
+        - name: id
+          in: path
+          description: ID of employee to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: employee deleted
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    EmployeeList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Employee'
+
+    Employee:
+      allOf:
+        - $ref: '#/components/schemas/NewEmployee'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+              format: int64
+
+    NewEmployee:
+      type: object
+      required:
+        - name
+        - city
+      properties:
+        name:
+          type: string
+        city:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

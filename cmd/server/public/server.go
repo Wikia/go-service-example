@@ -1,8 +1,11 @@
-package handlers
+package public
 
 import (
+	"github.com/Wikia/go-example-service/cmd/openapi"
 	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/Wikia/go-example-service/internal/validator"
+	openapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo-contrib/jaegertracing"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
@@ -13,8 +16,13 @@ import (
 	"gorm.io/gorm"
 )
 
+type MainServerImpl struct {
+	DB *gorm.DB
+}
+
 // API constructs a http.Handler with all application routes defined.
-func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm.DB) *echo.Echo {
+func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm.DB, swagger *openapi3.T) *echo.Echo {
+	wrapper := MainServerImpl{DB: db}
 	r := echo.New()
 	traceConfig := jaegertracing.DefaultTraceConfig
 	traceConfig.ComponentName = appName
@@ -26,6 +34,7 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 	r.Use(
 		traceMiddleware,
 		logging.EchoLogger(logger),
+		openapimiddleware.OapiRequestValidator(swagger),
 		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 	)
 
@@ -33,17 +42,7 @@ func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm
 	// request/form validation
 	r.Validator = &validator.EchoValidator{}
 
-	example := r.Group("/example")
-	{
-		example.GET("/hello", Hello)
-		employee := example.Group("/employee")
-		{
-			employee.GET("/all", All(db))
-			employee.PUT("/", CreateEmployee(db))
-			employee.GET("/:id", GetEmployee(db))
-			employee.DELETE("/:id", DeleteEmployee(db))
-		}
-	}
+	openapi.RegisterHandlers(r, &wrapper)
 
 	return r
 }

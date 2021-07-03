@@ -1,0 +1,6 @@
+output:
+  ./cmd/openapi/example-server.gen.go
+generate:
+  - server
+  - spec
+package: openapi

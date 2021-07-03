@@ -3,16 +3,18 @@ package logging
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"net/http"
-	"time"
 )
 
 type key int
+
 const loggerIDKey key = 119
 
 // EchoLogger is a middleware and zap to provide an "access log" like logging for each request.
@@ -21,17 +23,17 @@ func EchoLogger(log *zap.Logger) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			start := time.Now()
 			req := c.Request()
-			var traceId string
+			var traceID string
 
 			if span := opentracing.SpanFromContext(req.Context()); span != nil {
 				if sc, ok := span.Context().(jaeger.SpanContext); ok {
-					traceId = sc.TraceID().String()
+					traceID = sc.TraceID().String()
 				}
 			}
 
 			var logger = log
-			if traceId != "" {
-				logger = log.With(zap.String("trace_id", traceId))
+			if traceID != "" {
+				logger = log.With(zap.String("trace_id", traceID))
 			}
 			c.SetRequest(req.WithContext(addLoggerToContext(req.Context(), logger)))
 
@@ -59,8 +61,8 @@ func EchoLogger(log *zap.Logger) echo.MiddlewareFunc {
 				id = res.Header().Get(echo.HeaderXRequestID)
 				fields = append(fields, zap.String("request_id", id))
 			}
-			if traceId != "" {
-				fields = append(fields, zap.String("trace_id", traceId))
+			if traceID != "" {
+				fields = append(fields, zap.String("trace_id", traceID))
 			}
 
 			n := res.Status

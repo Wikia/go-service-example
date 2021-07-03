@@ -27,15 +27,16 @@ help:
 	@echo 'Management commands for ${BIN_NAME}:'
 	@echo
 	@echo 'Usage:'
-	@echo '    make build           Compile the project.'
-	@echo '    make build-docker    Build all releases and docker images but will not publish them.'
-	@echo '    make release         Build all releases and docker image and pushes them out'
-	@echo '    make get-deps        runs dep ensure, mostly used for ci.'
-	@echo '    make build-alpine    Compile optimized for alpine linux.'
-	@echo '    make test            Run tests on a compiled project.'
-	@echo '    make clean           Clean the directory tree.'
-	@echo '    make lint            Run the linter on the source code'
-	@echo '    make run-local       Run the server locally with live-reload (using local air binary of docker if not found'
+	@echo '    make build           	Compile the project.'
+	@echo '    make build-docker    	Build all releases and docker images but will not publish them.'
+	@echo '    make release         	Build all releases and docker image and pushes them out'
+	@echo '    make get-deps        	Runs `go mod install`, mostly used for ci.'
+	@echo '    make build-alpine    	Compile optimized for alpine linux.'
+	@echo '    make test            	Run tests on a compiled project.'
+	@echo '    make clean           	Clean the directory tree.'
+	@echo '    make lint            	Run the linter on the source code'
+	@echo '    make openapi-generate 	Will generate server/client code using OpenAPI schema'
+	@echo '    make run-local       	Run the server locally with live-reload (using local air binary of docker if not found'
 	@echo
 
 lint: $(GOLANGCI_LINT)
@@ -43,14 +44,14 @@ lint: $(GOLANGCI_LINT)
 
 build:
 	@echo "building ${BIN_NAME}@${VERSION}"
-	go build -ldflags "-X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}" -o bin/${BIN_NAME} cmd/server/main.go
+	go build -ldflags "-X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}" -o bin/${BIN_NAME} cmd/main.go
 
 get-deps:
 	go mod install
 
 build-alpine:
 	@echo "building ${BIN_NAME}@${VERSION}"
-	go build -ldflags '-w -linkmode external -extldflags "-static" -X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}' -o bin/${BIN_NAME} cmd/server/main.go
+	go build -ldflags '-w -linkmode external -extldflags "-static" -X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}' -o bin/${BIN_NAME} cmd/main.go
 
 build-docker: $(GORELEASER)
 	goreleaser --snapshot --skip-publish --rm-dist
@@ -64,6 +65,10 @@ clean:
 
 test:
 	go test ./...
+
+openapi-generate:
+	@oapi-codegen -config ./cmd/openapi/server.cfg.yaml ./cmd/openapi/schema.yaml
+	@oapi-codegen -config ./cmd/openapi/types.cfg.yaml ./cmd/openapi/schema.yaml
 
 run-local:
 	@echo "Running server using docker air image"

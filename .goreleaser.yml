@@ -8,7 +8,7 @@
         - windows
       goarch:
         - amd64
-      main: ./cmd/server/main.go
+      main: ./cmd/main.go
   archives:
     - format_overrides:
         - goos: windows

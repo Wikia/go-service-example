@@ -3,13 +3,17 @@ package main
 import (
 	"expvar"
 	"fmt"
-	"github.com/Wikia/go-example-service/internal/database"
 	"os"
 	"time"
 
-	"github.com/Wikia/go-example-service/cmd/server/handlers"
-	"github.com/Wikia/go-example-service/cmd/server/metrics"
-	"github.com/Wikia/go-example-service/cmd/server/models"
+	"github.com/Wikia/go-example-service/cmd/openapi"
+	"github.com/Wikia/go-example-service/cmd/server/admin"
+	"github.com/Wikia/go-example-service/cmd/server/public"
+
+	"github.com/Wikia/go-example-service/internal/database"
+
+	"github.com/Wikia/go-example-service/cmd/metrics"
+	"github.com/Wikia/go-example-service/cmd/models"
 	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/ardanlabs/conf"
 	"github.com/pkg/errors"
@@ -57,16 +61,16 @@ func run() error {
 			Level string `conf:"default:info"`
 		}
 		DB struct {
-			Driver   string `conf:"default:sqlite3"`
-			User     string `conf:"default:root"`
-			Password string `conf:"default:root"`
-			Host     string `conf:"default:localhost"`
-			Sources  []string
-			Replicas []string
+			Driver          string `conf:"default:sqlite3"`
+			User            string `conf:"default:root"`
+			Password        string `conf:"default:root"`
+			Host            string `conf:"default:localhost"`
+			Sources         []string
+			Replicas        []string
 			ConnMaxIdleTime time.Duration `conf:"default:1h"`
 			ConnMaxLifeTime time.Duration `conf:"default:12h"`
-			MaxIdleConns int `conf:"default:10"` // tune this to your needs
-			MaxOpenConns int `conf:"default:20"` // this as well
+			MaxIdleConns    int           `conf:"default:10"` // tune this to your needs
+			MaxOpenConns    int           `conf:"default:20"` // this as well
 		}
 	}
 
@@ -118,7 +122,7 @@ func run() error {
 		zap.String("environment", cfg.Environment),
 		zap.String("datacenter", cfg.Datacenter),
 		zap.String("pod_name", cfg.K8S.PodName),
-		)
+	)
 
 	logger.With(zap.Reflect("config", cfg)).Info("starting service")
 
@@ -169,8 +173,15 @@ func run() error {
 		logger.With(zap.Error(err)).Error("could not initialize tracing for the database")
 	}
 
+	// swagger
+	swagger, err := openapi.GetSwagger()
+	if err != nil {
+		logger.With(zap.Error(err)).Fatal("could not load Swagger Spec")
+	}
+	swagger.Servers = nil
+
 	go func() {
-		internal := handlers.Internal(logger)
+		internal := admin.Internal(logger, swagger)
 		internal.HideBanner = cfg.Environment != "localhost"
 		internal.HidePort = cfg.Environment != "localhost"
 		err = internal.Start(cfg.Web.InternalHost)
@@ -179,7 +190,7 @@ func run() error {
 		}
 	}()
 
-	api := handlers.API(logger, tracer, AppName, db)
+	api := public.API(logger, tracer, AppName, db, swagger)
 	api.HideBanner = true // no need to see it twice
 	api.HidePort = cfg.Environment != "localhost"
 

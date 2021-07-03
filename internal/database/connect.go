@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
@@ -8,7 +10,6 @@ import (
 	dblogger "gorm.io/gorm/logger"
 	"gorm.io/plugin/dbresolver"
 	"moul.io/zapgorm2"
-	"time"
 )
 
 func GetConnection(logger *zap.Logger, sources, replicas []string, connMaxIdleTime, connMaxLifeTime time.Duration, maxIdleConns, maxOpenConns int) (*gorm.DB, error) {
@@ -36,14 +37,14 @@ func GetConnection(logger *zap.Logger, sources, replicas []string, connMaxIdleTi
 
 	err = db.Use(
 		dbresolver.Register(dbresolver.Config{
-			Sources: dbSources,
+			Sources:  dbSources,
 			Replicas: dbReplicas,
-			Policy: dbresolver.RandomPolicy{},
+			Policy:   dbresolver.RandomPolicy{},
 		}).
-		SetConnMaxIdleTime(connMaxIdleTime).
-		SetConnMaxLifetime(connMaxLifeTime).
-		SetMaxIdleConns(maxIdleConns).
-		SetMaxOpenConns(maxOpenConns))
+			SetConnMaxIdleTime(connMaxIdleTime).
+			SetConnMaxLifetime(connMaxLifeTime).
+			SetMaxIdleConns(maxIdleConns).
+			SetMaxOpenConns(maxOpenConns))
 
 	if err != nil {
 		return nil, errors.Wrap(err, "could not setup db replicas")

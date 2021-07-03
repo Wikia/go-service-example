@@ -1,8 +1,11 @@
-package handlers
+package admin
 
 import (
+	"net/http"
+
 	internalHandlers "github.com/Wikia/go-example-service/internal/handlers"
 	"github.com/Wikia/go-example-service/internal/logging"
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -11,13 +14,13 @@ import (
 )
 
 // Internal constructs an http.Handler with all application routes defined.
-func Internal(logger *zap.Logger) *echo.Echo {
+func Internal(logger *zap.Logger, swagger *openapi3.T) *echo.Echo {
 	r := echo.New()
 
 	r.Use(
 		logging.EchoLogger(logger),
 		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
-		)
+	)
 
 	health := r.Group("/health")
 	{
@@ -28,6 +31,15 @@ func Internal(logger *zap.Logger) *echo.Echo {
 	r.GET("/metrics", func(ctx echo.Context) error {
 		promhttp.Handler().ServeHTTP(ctx.Response(), ctx.Request())
 		return nil
+	})
+
+	r.GET("/swagger", func(ctx echo.Context) error {
+		data, err := swagger.MarshalJSON()
+		if err != nil {
+			return err
+		}
+
+		return ctx.JSONBlob(http.StatusOK, data)
 	})
 
 	return r

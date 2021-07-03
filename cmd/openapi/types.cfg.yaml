@@ -1,0 +1,5 @@
+output:
+  ./cmd/openapi/example-types.gen.go
+generate:
+  - types
+package: openapi
