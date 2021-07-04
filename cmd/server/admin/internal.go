@@ -13,8 +13,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// Internal constructs an http.Handler with all application routes defined.
-func Internal(logger *zap.Logger, swagger *openapi3.T) *echo.Echo {
+// NewInternalServer constructs an echo server with all application routes defined.
+func NewInternalServer(logger *zap.Logger, swagger *openapi3.T) *echo.Echo {
 	r := echo.New()
 
 	r.Use(

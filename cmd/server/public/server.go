@@ -16,13 +16,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type MainServerImpl struct {
+type APIServer struct {
 	DB *gorm.DB
 }
 
-// API constructs a http.Handler with all application routes defined.
-func API(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm.DB, swagger *openapi3.T) *echo.Echo {
-	wrapper := MainServerImpl{DB: db}
+// NewApiServer constructs a public echo server with all application routes defined.
+func NewApiServer(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm.DB, swagger *openapi3.T) *echo.Echo {
+	wrapper := APIServer{DB: db}
 	r := echo.New()
 	traceConfig := jaegertracing.DefaultTraceConfig
 	traceConfig.ComponentName = appName

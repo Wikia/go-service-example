@@ -13,7 +13,7 @@ type Message struct {
 	Text string
 }
 
-func (s MainServerImpl) Greet(ctx echo.Context) error {
+func (s APIServer) Greet(ctx echo.Context) error {
 	logger := logging.FromEchoContext(ctx)
 	logger.Info("Greeting user")
 	defer metrics.GreetCount.Inc()

@@ -181,7 +181,7 @@ func run() error {
 	swagger.Servers = nil
 
 	go func() {
-		internal := admin.Internal(logger, swagger)
+		internal := admin.NewInternalServer(logger, swagger)
 		internal.HideBanner = cfg.Environment != "localhost"
 		internal.HidePort = cfg.Environment != "localhost"
 		err = internal.Start(cfg.Web.InternalHost)
@@ -190,7 +190,7 @@ func run() error {
 		}
 	}()
 
-	api := public.API(logger, tracer, AppName, db, swagger)
+	api := public.NewApiServer(logger, tracer, AppName, db, swagger)
 	api.HideBanner = true // no need to see it twice
 	api.HidePort = cfg.Environment != "localhost"
 
