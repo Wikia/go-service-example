@@ -33,6 +33,7 @@ func NewAPIServer(logger *zap.Logger, tracer opentracing.Tracer, appName string,
 	promMetrics := prometheus.NewPrometheus("http", func(c echo.Context) bool { return false })
 
 	r.Use(
+		middleware.RemoveTrailingSlash(),
 		traceMiddleware,
 		logging.EchoLogger(logger),
 		openapimiddleware.OapiRequestValidator(swagger),

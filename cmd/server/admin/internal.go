@@ -18,6 +18,7 @@ func NewInternalServer(logger *zap.Logger, swagger *openapi3.T) *echo.Echo {
 	r := echo.New()
 
 	r.Use(
+		middleware.RemoveTrailingSlash(),
 		logging.EchoLogger(logger),
 		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 	)
