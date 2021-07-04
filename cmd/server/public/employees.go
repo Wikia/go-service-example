@@ -3,9 +3,10 @@ package public
 import (
 	"net/http"
 
+	"github.com/Wikia/go-example-service/cmd/models/employee"
+
 	"github.com/Wikia/go-example-service/internal/logging"
 
-	"github.com/Wikia/go-example-service/cmd/models"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -14,8 +15,7 @@ func (s APIServer) GetAllEmployees(ctx echo.Context) error {
 	logger := logging.FromEchoContext(ctx)
 	logger.Info("Fetching list of all employees")
 
-	people, err := models.AllEmployees(ctx.Request().Context(), s.DB)
-
+	people, err := s.employeeRepo.GetAllEmployees(ctx.Request().Context())
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -25,7 +25,7 @@ func (s APIServer) GetAllEmployees(ctx echo.Context) error {
 
 func (s APIServer) CreateEmployee(ctx echo.Context) error {
 	logger := logging.FromEchoContext(ctx).Sugar()
-	e := &models.Employee{}
+	e := &employee.Employee{}
 	if err := ctx.Bind(e); err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (s APIServer) CreateEmployee(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	logger.With("employee", e).Info("creating new employee")
-	if err := models.AddEmployee(ctx.Request().Context(), s.DB, e); err != nil {
+	if err := s.employeeRepo.AddEmployee(ctx.Request().Context(), e); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.NoContent(http.StatusAccepted)
@@ -42,7 +42,7 @@ func (s APIServer) CreateEmployee(ctx echo.Context) error {
 func (s APIServer) FindEmployeeByID(ctx echo.Context, employeeID int64) error {
 	logger := logging.FromEchoContext(ctx).Sugar()
 	logger.With("id", employeeID).Info("looking up employee")
-	e, err := models.GetEmployee(ctx.Request().Context(), s.DB, employeeID)
+	e, err := s.employeeRepo.GetEmployee(ctx.Request().Context(), employeeID)
 	if err == gorm.ErrRecordNotFound {
 		return echo.NewHTTPError(http.StatusNotFound, "object with given id not found")
 	} else if err != nil {
@@ -55,7 +55,7 @@ func (s APIServer) FindEmployeeByID(ctx echo.Context, employeeID int64) error {
 func (s APIServer) DeleteEmployee(ctx echo.Context, employeeID int64) error {
 	logger := logging.FromEchoContext(ctx).Sugar()
 	logger.With("id", employeeID).Info("deleting employee")
-	err := models.DeleteEmployee(ctx.Request().Context(), s.DB, employeeID)
+	err := s.employeeRepo.DeleteEmployee(ctx.Request().Context(), employeeID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/Wikia/go-example-service/cmd/models/employee"
+
 	"github.com/Wikia/go-example-service/cmd/openapi"
 	"github.com/Wikia/go-example-service/cmd/server/admin"
 	"github.com/Wikia/go-example-service/cmd/server/public"
@@ -13,7 +15,6 @@ import (
 	"github.com/Wikia/go-example-service/internal/database"
 
 	"github.com/Wikia/go-example-service/cmd/metrics"
-	"github.com/Wikia/go-example-service/cmd/models"
 	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/ardanlabs/conf"
 	"github.com/pkg/errors"
@@ -141,7 +142,7 @@ func run() error {
 	err = res.Row().Scan(&result)
 	if err != nil || len(result) == 0 {
 		logger.Info("no tables found - initializing database")
-		if err = models.InitData(db); err != nil {
+		if err = employee.InitData(db); err != nil {
 			logger.With(zap.Error(err)).Warn("could not initialize database")
 		}
 	}
@@ -190,7 +191,7 @@ func run() error {
 		}
 	}()
 
-	api := public.NewApiServer(logger, tracer, AppName, db, swagger)
+	api := public.NewAPIServer(logger, tracer, AppName, db, swagger)
 	api.HideBanner = true // no need to see it twice
 	api.HidePort = cfg.Environment != "localhost"
 
