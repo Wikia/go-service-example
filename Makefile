@@ -19,8 +19,6 @@ $(GOLANGCI_LINT):
 	brew install golangci-lint
 
 $(GORELEASER):
-	# this line is only needed to build when using SQLite3
-	brew install FiloSottile/musl-cross/musl-cross
 	brew install goreleaser/tap/goreleaser
 
 help:
@@ -39,9 +37,12 @@ help:
 	@echo '    make run-local       	Run the server locally with live-reload (using local air binary of docker if not found'
 	@echo
 
-lint: $(GOLANGCI_LINT)
-	golangci-lint run -E revive -E gosec -E gofmt -E goimports
+lint: $(GOLANGCI_LINT) lint-cmd
 
+lint-ci: lint-cmd
+
+lint-cmd:
+	golangci-lint run -E revive -E gosec -E gofmt -E goimports
 build:
 	@echo "building ${BIN_NAME}@${VERSION}"
 	go build -ldflags "-X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}" -o bin/${BIN_NAME} cmd/main.go

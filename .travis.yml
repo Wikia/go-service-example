@@ -1,8 +1,8 @@
 language: go
 go:
   - 1.x
-services:
-  - docker
+install:
+  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.41.1
 script:
-  - make lint
+  - make lint-ci
   - make test 
