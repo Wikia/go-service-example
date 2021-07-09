@@ -36,7 +36,7 @@ jobs:
         with:
           push: false
           tags: fandom.com/services/go-example-service:${{ github.sha }}
-          target: app
+          #          target: app
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           load: true # make the image available for local docker run commands
