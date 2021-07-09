@@ -1,6 +1,6 @@
 .PHONY: build build-alpine clean test help default lint run-local bump-version
 
-BIN_NAME = example
+BIN_NAME = go-example-service
 GITHUB_REPO = github.com/wikia/go-example-service
 BIN_DIR := $(GOPATH)/bin
 GOLANGCI_LINT := /usr/local/bin/golangci-lint
@@ -52,7 +52,7 @@ get-deps:
 
 build-alpine:
 	@echo "building ${BIN_NAME}@${VERSION}"
-	go build -ldflags '-w -linkmode external -extldflags "-static" -X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}' -o bin/${BIN_NAME} cmd/main.go
+	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w -linkmode external -extldflags "-static" -X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}' -o bin/${BIN_NAME} cmd/main.go
 
 build-docker: $(GORELEASER)
 	goreleaser --snapshot --skip-publish --rm-dist
