@@ -25,12 +25,12 @@ func GetConnection(logger *zap.Logger, sources, replicas []string, connMaxIdleTi
 		return nil, errors.Wrap(err, "failed to connect database")
 	}
 
-	var dbSources []gorm.Dialector
+	dbSources := make([]gorm.Dialector, len(sources))
 	for _, dsn := range sources {
 		dbSources = append(dbSources, mysql.Open(dsn))
 	}
 
-	var dbReplicas []gorm.Dialector
+	dbReplicas := make([]gorm.Dialector, len(replicas))
 	for _, dsn := range replicas {
 		dbReplicas = append(dbReplicas, mysql.Open(dsn))
 	}

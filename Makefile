@@ -42,7 +42,9 @@ lint: $(GOLANGCI_LINT) lint-cmd
 lint-ci: lint-cmd
 
 lint-cmd:
-	golangci-lint run -E revive -E gosec -E gofmt -E goimports
+	golangci-lint run
+	go vet ./...
+
 build:
 	@echo "building ${BIN_NAME}@${VERSION}"
 	go build -ldflags "-X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}" -o bin/${BIN_NAME} cmd/main.go

@@ -20,6 +20,7 @@ func (r SQLRepository) GetAllEmployees(ctx context.Context) (people []Employee, 
 	defer span.Finish()
 
 	err = r.db.WithContext(spanCtx).Find(&people).Error
+
 	return
 }
 
@@ -28,6 +29,7 @@ func (r SQLRepository) AddEmployee(ctx context.Context, newEmployee *Employee) (
 	defer span.Finish()
 
 	err = r.db.WithContext(spanCtx).Create(newEmployee).Error
+
 	return
 }
 
@@ -37,6 +39,7 @@ func (r SQLRepository) GetEmployee(ctx context.Context, employeeID int64) (*Empl
 
 	employee := Employee{}
 	err := r.db.WithContext(spanCtx).First(&employee, employeeID).Error
+
 	return &employee, err
 }
 
@@ -45,5 +48,6 @@ func (r SQLRepository) DeleteEmployee(ctx context.Context, employeeID int64) (er
 	defer span.Finish()
 
 	err = r.db.WithContext(spanCtx).Delete(&Employee{}, employeeID).Error
+
 	return
 }

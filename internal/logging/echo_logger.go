@@ -23,6 +23,7 @@ func EchoLogger(log *zap.Logger) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			start := time.Now()
 			req := c.Request()
+
 			var traceID string
 
 			if span := opentracing.SpanFromContext(req.Context()); span != nil {
@@ -35,6 +36,7 @@ func EchoLogger(log *zap.Logger) echo.MiddlewareFunc {
 			if traceID != "" {
 				logger = log.With(zap.String("trace_id", traceID))
 			}
+
 			c.SetRequest(req.WithContext(addLoggerToContext(req.Context(), logger)))
 
 			err := next(c)
@@ -57,21 +59,24 @@ func EchoLogger(log *zap.Logger) echo.MiddlewareFunc {
 			}
 
 			id := req.Header.Get(echo.HeaderXRequestID)
+
 			if id != "" {
 				id = res.Header().Get(echo.HeaderXRequestID)
 				fields = append(fields, zap.String("request_id", id))
 			}
+
 			if traceID != "" {
 				fields = append(fields, zap.String("trace_id", traceID))
 			}
 
 			n := res.Status
+
 			switch {
-			case n >= 500:
+			case n >= http.StatusInternalServerError:
 				logger.Error("Server error", fields...)
-			case n >= 400:
+			case n >= http.StatusBadRequest:
 				logger.Warn("Client error", fields...)
-			case n >= 300:
+			case n >= http.StatusMultipleChoices:
 				logger.Info("Redirection", fields...)
 			default:
 				logger.Info("Success", fields...)
@@ -97,6 +102,7 @@ func FromContext(ctx context.Context) *zap.Logger {
 	if logger == nil {
 		return nil
 	}
+
 	return logger.(*zap.Logger)
 }
 

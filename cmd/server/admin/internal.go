@@ -3,6 +3,8 @@ package admin
 import (
 	"net/http"
 
+	"github.com/pkg/errors"
+
 	internalHandlers "github.com/Wikia/go-example-service/internal/handlers"
 	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/getkin/kin-openapi/openapi3"
@@ -31,13 +33,14 @@ func NewInternalServer(logger *zap.Logger, swagger *openapi3.T) *echo.Echo {
 
 	r.GET("/metrics", func(ctx echo.Context) error {
 		promhttp.Handler().ServeHTTP(ctx.Response(), ctx.Request())
+
 		return nil
 	})
 
 	r.GET("/swagger", func(ctx echo.Context) error {
 		data, err := swagger.MarshalJSON()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "error marshaling swagger spec")
 		}
 
 		return ctx.JSONBlob(http.StatusOK, data)

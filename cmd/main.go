@@ -31,8 +31,8 @@ var (
 	builtBy = "unknown"
 )
 
-//AppName should hold unique name of your service.
-//Please be aware that this is also used as a prefix for environment variables used in config
+// AppName should hold unique name of your service.
+// Please be aware that this is also used as a prefix for environment variables used in config
 const AppName = "example"
 
 func main() {
@@ -76,36 +76,43 @@ func run() error {
 	}
 
 	if err := conf.Parse(os.Args[1:], AppName, &cfg); err != nil {
-		if err == conf.ErrHelpWanted {
+		if errors.Is(err, conf.ErrHelpWanted) {
 			usage, err := conf.Usage(AppName, &cfg)
 			if err != nil {
 				return errors.Wrap(err, "generating config usage")
 			}
+
 			fmt.Println(usage)
+
 			return nil
 		}
+
 		return errors.Wrap(err, "parsing config")
 	}
 
 	// =========================================================================
 	// Logging
 
-	var logger *zap.Logger
-	var logCfg zap.Config
-	var err error
+	var (
+		logger *zap.Logger
+		logCfg zap.Config
+		err    error
+	)
 
-	if cfg.Logging.Type == "dev" || cfg.Logging.Type == "localhost" {
+	const LocalhostEnv = "localhost"
+	if cfg.Logging.Type == "dev" || cfg.Logging.Type == LocalhostEnv {
 		logCfg = zap.NewDevelopmentConfig()
 	} else {
 		logCfg = zap.NewProductionConfig()
 	}
 
-	if cfg.Environment == "localhost" {
+	if cfg.Environment == LocalhostEnv {
 		logCfg.EncoderConfig.EncodeLevel = zapcore.LowercaseColorLevelEncoder
 	}
 
 	logLevel := zap.InfoLevel
 	err = logLevel.Set(cfg.Logging.Level)
+
 	if err == nil {
 		logCfg.Level = zap.NewAtomicLevelAt(logLevel)
 		logger, err = logCfg.Build()
@@ -114,6 +121,7 @@ func run() error {
 	if err != nil {
 		panic(fmt.Sprintf("could not initialize log: %v", err))
 	}
+
 	logger = logger.With(
 		zap.String("appname", AppName),
 		zap.String("version", version),
@@ -132,16 +140,20 @@ func run() error {
 	// =========================================================================
 	// DB
 	db, err := database.GetConnection(logger, cfg.DB.Sources, cfg.DB.Replicas, cfg.DB.ConnMaxIdleTime, cfg.DB.ConnMaxLifeTime, cfg.DB.MaxIdleConns, cfg.DB.MaxOpenConns)
+
 	if err != nil {
 		logger.With(zap.Error(err)).Panic("could not connect to the database")
 	}
 
-	//Init for this example
+	// Init for this example
 	res := db.Raw("SHOW TABLES LIKE 'employees'")
+
 	var result string
 	err = res.Row().Scan(&result)
+
 	if err != nil || len(result) == 0 {
 		logger.Info("no tables found - initializing database")
+
 		if err = employee.InitData(db); err != nil {
 			logger.With(zap.Error(err)).Warn("could not initialize database")
 		}
@@ -151,6 +163,7 @@ func run() error {
 	expvar.NewString("build").Set(commit)
 	expvar.NewString("version").Set(version)
 	logger.Info("started: Application initializing")
+
 	defer logger.Info("application terminated")
 
 	// metrics
@@ -162,6 +175,7 @@ func run() error {
 	if err != nil {
 		return errors.Wrap(err, "error initializing tracer")
 	}
+
 	defer func() {
 		err := closer.Close()
 		if err != nil {
@@ -170,22 +184,26 @@ func run() error {
 	}()
 
 	err = db.Use(gormopentracing.New(gormopentracing.WithTracer(tracer)))
+
 	if err != nil {
 		logger.With(zap.Error(err)).Error("could not initialize tracing for the database")
 	}
 
 	// swagger
 	swagger, err := openapi.GetSwagger()
+
 	if err != nil {
 		logger.With(zap.Error(err)).Fatal("could not load Swagger Spec")
 	}
+
 	swagger.Servers = nil
 
 	go func() {
 		internal := admin.NewInternalServer(logger, swagger)
-		internal.HideBanner = cfg.Environment != "localhost"
-		internal.HidePort = cfg.Environment != "localhost"
+		internal.HideBanner = cfg.Environment != LocalhostEnv
+		internal.HidePort = cfg.Environment != LocalhostEnv
 		err = internal.Start(cfg.Web.InternalHost)
+
 		if err != nil {
 			logger.With(zap.Error(err)).Fatal("error starting internal server")
 		}
@@ -193,9 +211,10 @@ func run() error {
 
 	api := public.NewAPIServer(logger, tracer, AppName, db, swagger)
 	api.HideBanner = true // no need to see it twice
-	api.HidePort = cfg.Environment != "localhost"
+	api.HidePort = cfg.Environment != LocalhostEnv
 
 	err = api.Start(cfg.Web.APIHost)
+
 	if err != nil {
 		logger.With(zap.Error(err)).Fatal("error starting server")
 	}

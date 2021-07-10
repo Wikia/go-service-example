@@ -16,8 +16,10 @@ type Message struct {
 func (s APIServer) Greet(ctx echo.Context) error {
 	logger := logging.FromEchoContext(ctx)
 	logger.Info("Greeting user")
+
 	defer metrics.GreetCount.Inc()
 
 	m := Message{"Hello World"}
+
 	return ctx.JSON(http.StatusOK, m)
 }

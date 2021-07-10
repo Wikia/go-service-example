@@ -26,6 +26,7 @@ func (v *EchoValidator) Validate(obj interface{}) error {
 
 func (v *EchoValidator) Engine() *EchoValidator {
 	v.lazyInit()
+
 	return v
 }
 
@@ -44,5 +45,6 @@ func kindOfData(data interface{}) reflect.Kind {
 	if valueType == reflect.Ptr {
 		valueType = value.Elem().Kind()
 	}
+
 	return valueType
 }

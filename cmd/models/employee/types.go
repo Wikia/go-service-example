@@ -24,8 +24,9 @@ func InitData(db *gorm.DB) (err error) {
 	if err != nil {
 		return
 	}
-	db.Create(&Employee{ID: 1, Name: "Przemek", City: "Olsztyn"})
-	db.Create(&Employee{ID: 2, Name: "Łukasz", City: "Poznań"})
+
+	db.Create(&Employee{Name: "Przemek", City: "Olsztyn"})
+	db.Create(&Employee{Name: "Łukasz", City: "Poznań"})
 
 	return
 }

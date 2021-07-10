@@ -14,6 +14,7 @@ import (
 
 func InitJaegerTracer(serviceName string, logger *zap.SugaredLogger, registry prometheus.Registerer) (tracer opentracing.Tracer, closer io.Closer, err error) {
 	traceCfg, err := jaeger_config.FromEnv()
+
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "could not initialize tracer configuration")
 	}
@@ -25,6 +26,7 @@ func InitJaegerTracer(serviceName string, logger *zap.SugaredLogger, registry pr
 		jaeger_config.Logger(tracingLogger),
 		jaeger_config.Metrics(metricsFactory),
 	)
+
 	if err == nil {
 		opentracing.SetGlobalTracer(tracer)
 	}
