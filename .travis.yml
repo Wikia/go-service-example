@@ -5,6 +5,5 @@ install:
   - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.41.1
   - ./ci/get_gotestsum.sh -b $(go env GOPATH)/bin v1.6.4
 script:
-  - go mod download
   - make lint-ci
   - make test 
