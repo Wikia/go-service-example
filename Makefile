@@ -65,7 +65,7 @@ clean:
 	@docker compose down
 
 test:
-	go test ./...
+	gotestsum --format pkgname-and-test-fails --jsonfile /tmp/test.log -- -race -cover -count=1 -coverprofile=/tmp/coverage.out ./...
 
 openapi-generate:
 	@oapi-codegen -config ./cmd/openapi/server.cfg.yaml ./cmd/openapi/schema.yaml

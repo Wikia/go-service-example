@@ -13,6 +13,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
+	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible
 	go.uber.org/atomic v1.8.0 // indirect
@@ -22,5 +23,7 @@ require (
 	gorm.io/gorm v1.21.11
 	gorm.io/plugin/dbresolver v1.1.0
 	gorm.io/plugin/opentracing v0.0.0-20210506132430-24a9caea7709
+	gotest.tools v2.1.0+incompatible // indirect
+	gotest.tools/gotestsum v1.6.4 // indirect
 	moul.io/zapgorm2 v1.1.0
 )
