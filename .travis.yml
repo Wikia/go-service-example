@@ -3,12 +3,7 @@ go:
   - 1.x
 install:
   - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.41.1
-  - mkdir -p /tmp/gotestsum \
-    && cd /tmp/gotestsum \
-    && wget https://github.com/gotestyourself/gotestsum/releases/download/v1.6.4/gotestsum_1.6.4_linux_amd64.tar.gz \
-    && tar xzf gotestsum_1.6.4_linux_amd64.tar.gz \
-    && cp gotestsum /usr/local/bin/gotestsum \
-    && rm -rf /tmp/gotestsum
 script:
+  - go mod download
   - make lint-ci
   - make test 
