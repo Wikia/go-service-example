@@ -42,7 +42,7 @@ func (s APIServer) CreateEmployee(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.NoContent(http.StatusAccepted)
+	return ctx.NoContent(http.StatusCreated)
 }
 
 func (s APIServer) FindEmployeeByID(ctx echo.Context, employeeID int64) error {

@@ -1,9 +1,13 @@
 package public_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/Wikia/go-example-service/internal/validator"
 
 	"gorm.io/gorm"
 
@@ -109,6 +113,31 @@ func TestFindEmployeeByIDMissing(t *testing.T) {
 		assert.Equal(t, 1, mockRepo.GetEmployeeCallCount())
 		_, id := mockRepo.GetEmployeeArgsForCall(0)
 		assert.EqualValues(t, 2, id)
+		assert.Empty(t, rec.Body.String())
+	}
+}
+
+func TestCreateEmployee(t *testing.T) {
+	t.Parallel()
+	mockRepo := &employeefakes.FakeRepository{}
+	server := public.NewAPIServer(mockRepo)
+
+	e := echo.New()
+	e.Validator = &validator.EchoValidator{}
+	payload, err := json.Marshal(stubEmployees[0])
+	assert.NoError(t, err)
+
+	req := httptest.NewRequest(http.MethodPut, "/example/employees/", bytes.NewBuffer(payload))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	logging.AddToContext(c, zap.L())
+
+	if assert.NoError(t, server.CreateEmployee(c)) {
+		assert.Equal(t, http.StatusCreated, rec.Code)
+		assert.Equal(t, 1, mockRepo.AddEmployeeCallCount())
+		_, ret := mockRepo.AddEmployeeArgsForCall(0)
+		assert.EqualValues(t, &stubEmployees[0], ret)
 		assert.Empty(t, rec.Body.String())
 	}
 }
