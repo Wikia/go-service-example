@@ -46,3 +46,22 @@ func TestGetAllEmployees(t *testing.T) {
 		assert.JSONEq(t, `[{"ID":1,"Name":"John Wick","City":"Atlanta"},{"ID":2,"Name":"Wade Winston Wilson","City":"New York"}]`, rec.Body.String())
 	}
 }
+
+func TestDeleteEmployee(t *testing.T) {
+	t.Parallel()
+	mockRepo := &employeefakes.FakeRepository{}
+	server := public.NewAPIServer(mockRepo)
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodDelete, "/example/employees/1", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	logging.AddToContext(c, zap.L())
+
+	if assert.NoError(t, server.DeleteEmployee(c, 1)) {
+		assert.Equal(t, http.StatusAccepted, rec.Code)
+		assert.Equal(t, 1, mockRepo.DeleteEmployeeCallCount())
+		_, id := mockRepo.DeleteEmployeeArgsForCall(0)
+		assert.EqualValues(t, 1, id)
+	}
+}
