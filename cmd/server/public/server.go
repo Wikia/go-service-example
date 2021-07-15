@@ -14,16 +14,19 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type APIServer struct {
 	employeeRepo employee.Repository
 }
 
-// NewAPIServer constructs a public echo server with all application routes defined.
-func NewAPIServer(logger *zap.Logger, tracer opentracing.Tracer, appName string, db *gorm.DB, swagger *openapi3.T) *echo.Echo {
-	wrapper := APIServer{employeeRepo: employee.NewSQLRepository(db)}
+func NewAPIServer(repository employee.Repository) *APIServer {
+	return &APIServer{repository}
+}
+
+// NewPublicAPI constructs a public echo server with all application routes defined.
+func NewPublicAPI(logger *zap.Logger, tracer opentracing.Tracer, appName string, repository employee.Repository, swagger *openapi3.T) *echo.Echo {
+	wrapper := NewAPIServer(repository)
 	r := echo.New()
 	traceConfig := jaegertracing.DefaultTraceConfig
 	traceConfig.ComponentName = appName
@@ -36,15 +39,18 @@ func NewAPIServer(logger *zap.Logger, tracer opentracing.Tracer, appName string,
 		middleware.RemoveTrailingSlash(),
 		traceMiddleware,
 		logging.EchoLogger(logger),
-		openapimiddleware.OapiRequestValidator(swagger),
-		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 	)
+
+	if swagger != nil {
+		r.Use(openapimiddleware.OapiRequestValidator(swagger))
+	}
+	r.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}))
 
 	promMetrics.Use(r)
 	// request/form validation
 	r.Validator = &validator.EchoValidator{}
 
-	openapi.RegisterHandlers(r, &wrapper)
+	openapi.RegisterHandlers(r, wrapper)
 
 	return r
 }

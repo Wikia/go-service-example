@@ -33,6 +33,7 @@ help:
 	@echo '    make test            	Run tests on a compiled project.'
 	@echo '    make clean           	Clean the directory tree.'
 	@echo '    make lint            	Run the linter on the source code'
+	@echo '    make go-generate         Generate golang code'
 	@echo '    make openapi-generate 	Will generate server/client code using OpenAPI schema'
 	@echo '    make run-local       	Run the server locally with live-reload (using local air binary of docker if not found'
 	@echo
@@ -42,32 +43,32 @@ lint: $(GOLANGCI_LINT) lint-cmd
 lint-ci: lint-cmd
 
 lint-cmd:
-	golangci-lint run
-	go vet ./...
+	@golangci-lint run
+	@go vet ./...
 
 build:
 	@echo "building ${BIN_NAME}@${VERSION}"
-	go build -ldflags "-X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}" -o bin/${BIN_NAME} cmd/main.go
+	@go build -ldflags "-X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}" -o bin/${BIN_NAME} cmd/main.go
 
 get-deps:
-	go mod install
+	@go mod install
 
 build-alpine:
 	@echo "building ${BIN_NAME}@${VERSION}"
 	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-w -linkmode external -extldflags "-static" -X main.commit=${GIT_COMMIT}${GIT_DIRTY} -X main.date=${BUILD_DATE} -X main.version=${VERSION}' -o bin/${BIN_NAME} cmd/main.go
 
 build-docker: $(GORELEASER)
-	goreleaser --snapshot --skip-publish --rm-dist
+	@goreleaser --snapshot --skip-publish --rm-dist
 
 release: $(GORELEASER)
-	goreleaser --rm-dist
+	@goreleaser --rm-dist
 
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
 	@docker compose down
 
 test:
-	gotestsum --format pkgname-and-test-fails --jsonfile /tmp/test.log -- -race -cover -count=1 -coverprofile=/tmp/coverage.out ./...
+	@gotestsum --format pkgname-and-test-fails --jsonfile /tmp/test.log -- -race -cover -count=1 -coverprofile=/tmp/coverage.out ./...
 
 openapi-generate:
 	@oapi-codegen -config ./cmd/openapi/server.cfg.yaml ./cmd/openapi/schema.yaml
@@ -76,3 +77,6 @@ openapi-generate:
 run-local:
 	@echo "Running server using docker air image"
 	@docker compose up --remove-orphans
+
+go-generate:
+	@go generate ./...

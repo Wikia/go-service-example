@@ -209,7 +209,8 @@ func run() error {
 		}
 	}()
 
-	api := public.NewAPIServer(logger, tracer, AppName, db, swagger)
+	sqlRepo := employee.NewSQLRepository(db)
+	api := public.NewPublicAPI(logger, tracer, AppName, sqlRepo, swagger)
 	api.HideBanner = true // no need to see it twice
 	api.HidePort = cfg.Environment != LocalhostEnv
 

@@ -1,5 +1,7 @@
 package employee
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
 import (
 	"context"
 
@@ -12,6 +14,7 @@ type Employee struct {
 	City string `validate:"required,gt=4"`
 }
 
+//counterfeiter:generate . Repository
 type Repository interface {
 	GetAllEmployees(ctx context.Context) ([]Employee, error)
 	AddEmployee(ctx context.Context, newEmployee *Employee) error

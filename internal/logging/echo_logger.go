@@ -106,6 +106,10 @@ func FromContext(ctx context.Context) *zap.Logger {
 	return logger.(*zap.Logger)
 }
 
+func AddToContext(c echo.Context, logger *zap.Logger) {
+	c.SetRequest(c.Request().WithContext(addLoggerToContext(c.Request().Context(), logger)))
+}
+
 // addLoggerToContext adds given logger to the context.Context and returns new context
 func addLoggerToContext(ctx context.Context, logger *zap.Logger) context.Context {
 	return context.WithValue(ctx, loggerIDKey, logger)
