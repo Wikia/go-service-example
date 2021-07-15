@@ -41,6 +41,7 @@ func TestGetAllEmployees(t *testing.T) {
 
 	if assert.NoError(t, server.GetAllEmployees(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, 1, mockRepo.GetAllEmployeesCallCount())
 		assert.JSONEq(t, `[{"ID":1,"Name":"John Wick","City":"Atlanta"},{"ID":2,"Name":"Wade Winston Wilson","City":"New York"}]`, rec.Body.String())
 	}
 }
