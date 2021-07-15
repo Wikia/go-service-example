@@ -20,14 +20,15 @@ import (
 
 var stubEmployees = []employee.Employee{
 	{
-		1, "John Wick", "Atlanta",
+		ID: 1, Name: "John Wick", City: "Atlanta",
 	},
 	{
-		2, "Wade Winston Wilson", "New York",
+		ID: 2, Name: "Wade Winston Wilson", City: "New York",
 	},
 }
 
 func TestGetAllEmployees(t *testing.T) {
+	t.Parallel()
 	mockRepo := &employeefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
