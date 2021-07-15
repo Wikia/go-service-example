@@ -58,7 +58,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /exmaple/employee/{id}:
+  /example/employee/{id}:
     get:
       description: Returns an employee based on a single ID
       operationId: FindEmployeeByID

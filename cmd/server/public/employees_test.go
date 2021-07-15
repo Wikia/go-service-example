@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/pkg/errors"
+
 	"github.com/Wikia/go-example-service/internal/validator"
 
 	"gorm.io/gorm"
@@ -41,7 +43,7 @@ func TestGetAllEmployees(t *testing.T) {
 	mockRepo.GetAllEmployeesReturns(stubEmployees, nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/example/employees/all", nil)
+	req := httptest.NewRequest(http.MethodGet, "/example/employee/all", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	logging.AddToContext(c, zap.L())
@@ -53,13 +55,33 @@ func TestGetAllEmployees(t *testing.T) {
 	}
 }
 
+func TestGetAllEmployeesFail(t *testing.T) {
+	t.Parallel()
+	mockRepo := &employeefakes.FakeRepository{}
+	server := public.NewAPIServer(mockRepo)
+
+	mockRepo.GetAllEmployeesReturns(nil, errors.New("some error"))
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/example/employee/all", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	logging.AddToContext(c, zap.L())
+
+	err := server.GetAllEmployees(c)
+	if assert.Error(t, err) {
+		assert.Equal(t, http.StatusInternalServerError, err.(*echo.HTTPError).Code)
+		assert.Equal(t, 1, mockRepo.GetAllEmployeesCallCount())
+	}
+}
+
 func TestDeleteEmployee(t *testing.T) {
 	t.Parallel()
 	mockRepo := &employeefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodDelete, "/example/employees/1", nil)
+	req := httptest.NewRequest(http.MethodDelete, "/example/employee/1", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	logging.AddToContext(c, zap.L())
@@ -72,6 +94,27 @@ func TestDeleteEmployee(t *testing.T) {
 	}
 }
 
+func TestDeleteEmployeeMissing(t *testing.T) {
+	t.Parallel()
+	mockRepo := &employeefakes.FakeRepository{}
+	server := public.NewAPIServer(mockRepo)
+	mockRepo.DeleteEmployeeReturns(gorm.ErrRecordNotFound)
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodDelete, "/example/employee/5", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	logging.AddToContext(c, zap.L())
+
+	err := server.DeleteEmployee(c, 5)
+	if assert.Error(t, err) {
+		assert.Equal(t, http.StatusNotFound, err.(*echo.HTTPError).Code)
+		assert.Equal(t, 1, mockRepo.DeleteEmployeeCallCount())
+		_, id := mockRepo.DeleteEmployeeArgsForCall(0)
+		assert.EqualValues(t, 5, id)
+	}
+}
+
 func TestFindEmployeeByID(t *testing.T) {
 	t.Parallel()
 	mockRepo := &employeefakes.FakeRepository{}
@@ -80,7 +123,7 @@ func TestFindEmployeeByID(t *testing.T) {
 	mockRepo.GetEmployeeReturns(&stubEmployees[0], nil)
 
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/example/employees/1", nil)
+	req := httptest.NewRequest(http.MethodGet, "/example/employee/1", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	logging.AddToContext(c, zap.L())
@@ -102,7 +145,7 @@ func TestFindEmployeeByIDMissing(t *testing.T) {
 	mockRepo.GetEmployeeReturns(nil, gorm.ErrRecordNotFound)
 
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/example/employees/2", nil)
+	req := httptest.NewRequest(http.MethodGet, "/example/employee/2", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	logging.AddToContext(c, zap.L())
@@ -127,7 +170,7 @@ func TestCreateEmployee(t *testing.T) {
 	payload, err := json.Marshal(stubEmployees[0])
 	assert.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodPut, "/example/employees/", bytes.NewBuffer(payload))
+	req := httptest.NewRequest(http.MethodPut, "/example/employee/", bytes.NewBuffer(payload))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)

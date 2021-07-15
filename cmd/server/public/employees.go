@@ -64,7 +64,9 @@ func (s APIServer) DeleteEmployee(ctx echo.Context, employeeID int64) error {
 	logger.With("id", employeeID).Info("deleting employee")
 	err := s.employeeRepo.DeleteEmployee(ctx.Request().Context(), employeeID)
 
-	if err != nil {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "object with given id not found")
+	} else if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
