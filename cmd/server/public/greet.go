@@ -19,7 +19,7 @@ func (s APIServer) Greet(ctx echo.Context) error {
 
 	defer metrics.GreetCount.Inc()
 
-	m := Message{"Hello World"}
+	m := Message{"Hello World!"}
 
 	return ctx.JSON(http.StatusOK, m)
 }
