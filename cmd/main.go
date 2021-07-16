@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
 	"expvar"
 	"fmt"
+	"github.com/labstack/echo/v4"
+	"net/http"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/Wikia/go-example-service/cmd/models/employee"
@@ -198,26 +202,42 @@ func run() error {
 
 	swagger.Servers = nil
 
-	go func() {
-		internal := admin.NewInternalAPI(logger, swagger)
-		internal.HideBanner = cfg.Environment != LocalhostEnv
-		internal.HidePort = cfg.Environment != LocalhostEnv
+	internal := admin.NewInternalAPI(logger, swagger)
+	internal.HideBanner = cfg.Environment != LocalhostEnv
+	internal.HidePort = cfg.Environment != LocalhostEnv
+	go func(e *echo.Echo) {
 		err = internal.Start(cfg.Web.InternalHost)
 
-		if err != nil {
-			logger.With(zap.Error(err)).Fatal("error starting internal server")
+		if err != nil && err != http.ErrServerClosed {
+			logger.With(zap.Error(err)).Fatal("error starting/running internal server")
 		}
-	}()
+	}(internal)
 
 	sqlRepo := employee.NewSQLRepository(db)
 	api := public.NewPublicAPI(logger, tracer, AppName, sqlRepo, swagger)
 	api.HideBanner = true // no need to see it twice
 	api.HidePort = cfg.Environment != LocalhostEnv
+	go func(e *echo.Echo) {
+		err = api.Start(cfg.Web.APIHost)
 
-	err = api.Start(cfg.Web.APIHost)
+		if err != nil && err != http.ErrServerClosed {
+			logger.With(zap.Error(err)).Fatal("error starting/running server")
+		}
+	}(api)
 
-	if err != nil {
-		logger.With(zap.Error(err)).Fatal("error starting server")
+	// Wait for interrupt signal to gracefully shut down the server with a timeout of 10 seconds.
+	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := api.Shutdown(ctx); err != nil {
+		api.Logger.Fatal(err)
+	}
+
+	if err := internal.Shutdown(ctx); err != nil {
+		internal.Logger.Fatal(err)
 	}
 
 	return nil
