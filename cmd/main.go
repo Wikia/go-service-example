@@ -4,11 +4,12 @@ import (
 	"context"
 	"expvar"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/labstack/echo/v4"
 
 	"github.com/Wikia/go-example-service/cmd/models/employee"
 
@@ -38,11 +39,18 @@ var (
 // AppName should hold unique name of your service.
 // Please be aware that this is also used as a prefix for environment variables used in config
 const AppName = "example"
+const ShutdownTimeout = 10
 
 func main() {
 	if err := run(); err != nil {
 		zap.L().With(zap.Error(err)).Error("error running service")
 		os.Exit(1)
+	}
+}
+
+func startServer(logger *zap.Logger, e *echo.Echo, host string) {
+	if err := e.Start(host); err != nil && errors.Is(err, http.ErrServerClosed) {
+		logger.With(zap.Error(err)).With(zap.String("host", host)).Fatal("error starting/running server")
 	}
 }
 
@@ -202,42 +210,29 @@ func run() error {
 
 	swagger.Servers = nil
 
-	internal := admin.NewInternalAPI(logger, swagger)
-	internal.HideBanner = cfg.Environment != LocalhostEnv
-	internal.HidePort = cfg.Environment != LocalhostEnv
-	go func(e *echo.Echo) {
-		err = internal.Start(cfg.Web.InternalHost)
-
-		if err != nil && err != http.ErrServerClosed {
-			logger.With(zap.Error(err)).Fatal("error starting/running internal server")
-		}
-	}(internal)
+	internalAPI := admin.NewInternalAPI(logger, swagger)
+	internalAPI.HideBanner = cfg.Environment != LocalhostEnv
+	internalAPI.HidePort = cfg.Environment != LocalhostEnv
+	go startServer(logger, internalAPI, cfg.Web.InternalHost)
 
 	sqlRepo := employee.NewSQLRepository(db)
-	api := public.NewPublicAPI(logger, tracer, AppName, sqlRepo, swagger)
-	api.HideBanner = true // no need to see it twice
-	api.HidePort = cfg.Environment != LocalhostEnv
-	go func(e *echo.Echo) {
-		err = api.Start(cfg.Web.APIHost)
-
-		if err != nil && err != http.ErrServerClosed {
-			logger.With(zap.Error(err)).Fatal("error starting/running server")
-		}
-	}(api)
+	publicAPI := public.NewPublicAPI(logger, tracer, AppName, sqlRepo, swagger)
+	publicAPI.HideBanner = true // no need to see it twice
+	publicAPI.HidePort = cfg.Environment != LocalhostEnv
+	go startServer(logger, publicAPI, cfg.Web.APIHost)
 
 	// Wait for interrupt signal to gracefully shut down the server with a timeout of 10 seconds.
 	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), ShutdownTimeout*time.Second)
 	defer cancel()
-	if err := api.Shutdown(ctx); err != nil {
-		api.Logger.Fatal(err)
+	if err := publicAPI.Shutdown(ctx); err != nil {
+		publicAPI.Logger.Fatal(err)
 	}
-
-	if err := internal.Shutdown(ctx); err != nil {
-		internal.Logger.Fatal(err)
+	if err := internalAPI.Shutdown(ctx); err != nil {
+		internalAPI.Logger.Fatal(err)
 	}
 
 	return nil
