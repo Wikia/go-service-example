@@ -4,7 +4,6 @@ namespace: dev
 generatorOptions:
   disableNameSuffixHash: true
 resources:
-  - ../_dev
   - ../../base
 replicas:
   - name: go-example-service
@@ -16,3 +15,16 @@ configMapGenerator:
       - vault_address=active.vault.service.poz.consul:8200
       - example_datacenter=poz-dev
       - example_environment=dev
+patches:
+  - target:
+      kind: PrometheusRule
+    patch: |-
+      - op: replace
+        path: /metadata/labels/prometheus
+        value: dev
+  - target:
+      kind: ServiceMonitor
+    patch: |-
+      - op: replace
+        path: /spec/namespaceSelector/matchNames
+        value: dev

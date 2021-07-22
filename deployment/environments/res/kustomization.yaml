@@ -1,0 +1,51 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: prod
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  - ../../base
+replicas:
+  - name: go-example-service
+    count: 1
+configMapGenerator:
+  - name: go-example-service
+    behavior: merge
+    literals:
+      - vault_address=active.vault.service.res.consul:8200
+      - example_datacenter=res
+      - example_environment=prod
+patches:
+  - target:
+      kind: PrometheusRule
+    patch: |-
+      - op: replace
+        path: /metadata/labels/prometheus
+        value: prod
+  - target:
+      kind: ServiceMonitor
+    patch: |-
+      - op: replace
+        path: /spec/namespaceSelector/matchNames
+        value: prod
+  - target:
+      kind: Ingress
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: go-example-service.prod.res.k8s.wikia.net
+      - op: replace
+        path: /spec/rules/1/host
+        value: prod.res.k8s.wikia.net
+      - op: replace
+        path: /spec/rules/2/host
+        value: go-example-service-admin.res.k8s.wikia.net
+      - op: replace
+        path: /spec/rules/3/host
+        value: go-example-service-debug.res.k8s.wikia.net
+      - op: replace
+        path: /spec/rules/4/host
+        value: services.wikia.com
+      - op: replace
+        path: /spec/rules/5/host
+        value: services.fandom.com

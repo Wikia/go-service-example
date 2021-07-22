@@ -92,7 +92,7 @@ spec:
           securityContext:
             runAsNonRoot: true
             runAsUser: 65534
-      volumes:       # all volumes must be defined here
+      volumes: # all volumes must be defined here
         - name: secrets-dir # secrets will be stored here
           emptyDir:
             medium: Memory
