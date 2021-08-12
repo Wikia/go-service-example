@@ -11,7 +11,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/Wikia/go-example-service/cmd/models/employee"
+	"github.com/Wikia/go-example-service/cmd/models"
 
 	"github.com/Wikia/go-example-service/cmd/openapi"
 	"github.com/Wikia/go-example-service/cmd/server/admin"
@@ -166,7 +166,7 @@ func run() error {
 	if err != nil || len(result) == 0 {
 		logger.Info("no tables found - initializing database")
 
-		if err = employee.InitData(db); err != nil {
+		if err = models.InitData(db); err != nil {
 			logger.With(zap.Error(err)).Warn("could not initialize database")
 		}
 	}
@@ -215,7 +215,7 @@ func run() error {
 	internalAPI.HidePort = cfg.Environment != LocalhostEnv
 	go startServer(logger, internalAPI, cfg.Web.InternalHost)
 
-	sqlRepo := employee.NewSQLRepository(db)
+	sqlRepo := models.NewSQLRepository(db)
 	publicAPI := public.NewPublicAPI(logger, tracer, AppName, sqlRepo, swagger)
 	publicAPI.HideBanner = true // no need to see it twice
 	publicAPI.HidePort = cfg.Environment != LocalhostEnv

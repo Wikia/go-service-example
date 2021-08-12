@@ -1,7 +1,7 @@
 package public
 
 import (
-	"github.com/Wikia/go-example-service/cmd/models/employee"
+	"github.com/Wikia/go-example-service/cmd/models"
 	"github.com/Wikia/go-example-service/cmd/openapi"
 	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/Wikia/go-example-service/internal/validator"
@@ -17,15 +17,15 @@ import (
 )
 
 type APIServer struct {
-	employeeRepo employee.Repository
+	employeeRepo models.Repository
 }
 
-func NewAPIServer(repository employee.Repository) *APIServer {
+func NewAPIServer(repository models.Repository) *APIServer {
 	return &APIServer{repository}
 }
 
 // NewPublicAPI constructs a public echo server with all application routes defined.
-func NewPublicAPI(logger *zap.Logger, tracer opentracing.Tracer, appName string, repository employee.Repository, swagger *openapi3.T) *echo.Echo {
+func NewPublicAPI(logger *zap.Logger, tracer opentracing.Tracer, appName string, repository models.Repository, swagger *openapi3.T) *echo.Echo {
 	wrapper := NewAPIServer(repository)
 	r := echo.New()
 	traceConfig := jaegertracing.DefaultTraceConfig

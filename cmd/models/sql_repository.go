@@ -1,4 +1,4 @@
-package employee
+package models
 
 import (
 	"context"
@@ -15,7 +15,7 @@ func NewSQLRepository(db *gorm.DB) Repository {
 	return &SQLRepository{db: db}
 }
 
-func (r SQLRepository) GetAllEmployees(ctx context.Context) (people []Employee, err error) {
+func (r SQLRepository) GetAllEmployees(ctx context.Context) (people []EmployeeDbModel, err error) {
 	span, spanCtx := opentracing.StartSpanFromContext(ctx, "models.AllEmployees")
 	defer span.Finish()
 
@@ -24,7 +24,7 @@ func (r SQLRepository) GetAllEmployees(ctx context.Context) (people []Employee, 
 	return
 }
 
-func (r SQLRepository) AddEmployee(ctx context.Context, newEmployee *Employee) (err error) {
+func (r SQLRepository) AddEmployee(ctx context.Context, newEmployee *EmployeeDbModel) (err error) {
 	span, spanCtx := opentracing.StartSpanFromContext(ctx, "models.AddEmployee")
 	defer span.Finish()
 
@@ -33,11 +33,11 @@ func (r SQLRepository) AddEmployee(ctx context.Context, newEmployee *Employee) (
 	return
 }
 
-func (r SQLRepository) GetEmployee(ctx context.Context, employeeID int64) (*Employee, error) {
+func (r SQLRepository) GetEmployee(ctx context.Context, employeeID int64) (*EmployeeDbModel, error) {
 	span, spanCtx := opentracing.StartSpanFromContext(ctx, "models.GetEmployee")
 	defer span.Finish()
 
-	employee := Employee{}
+	employee := EmployeeDbModel{}
 	err := r.db.WithContext(spanCtx).First(&employee, employeeID).Error
 
 	return &employee, err
@@ -47,7 +47,7 @@ func (r SQLRepository) DeleteEmployee(ctx context.Context, employeeID int64) (er
 	span, spanCtx := opentracing.StartSpanFromContext(ctx, "models.DeleteEmployee")
 	defer span.Finish()
 
-	err = r.db.WithContext(spanCtx).Delete(&Employee{}, employeeID).Error
+	err = r.db.WithContext(spanCtx).Delete(&EmployeeDbModel{}, employeeID).Error
 
 	return
 }

@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Wikia/go-example-service/cmd/models/employee/employeefakes"
+	"github.com/Wikia/go-example-service/cmd/models/modelsfakes"
 	"github.com/Wikia/go-example-service/cmd/server/public"
 	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/Wikia/go-example-service/internal/validator"
@@ -16,7 +16,7 @@ import (
 
 func TestGreet(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	e := echo.New()

@@ -4,13 +4,28 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Wikia/go-example-service/cmd/models/employee"
+	"github.com/Wikia/go-example-service/cmd/models"
 
 	"github.com/Wikia/go-example-service/internal/logging"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
+
+func employeeDbModelFromCreateRequest(e models.CreateEmployeeRequest) *models.EmployeeDbModel {
+	return &models.EmployeeDbModel{
+		Name: e.Name,
+		City: e.City,
+	}
+}
+
+func employeeResponseFromDbModel(e models.EmployeeDbModel) *models.EmployeeResponse {
+	return &models.EmployeeResponse{
+		ID:   e.ID,
+		Name: e.Name,
+		City: e.City,
+	}
+}
 
 func (s APIServer) GetAllEmployees(ctx echo.Context) error {
 	logger := logging.FromEchoContext(ctx)
@@ -21,24 +36,31 @@ func (s APIServer) GetAllEmployees(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.JSON(http.StatusOK, people)
+	response := make([]*models.EmployeeResponse, len(people))
+	for pos, e := range people {
+		response[pos] = employeeResponseFromDbModel(e)
+	}
+
+	return ctx.JSON(http.StatusOK, response)
 }
 
 func (s APIServer) CreateEmployee(ctx echo.Context) error {
 	logger := logging.FromEchoContext(ctx).Sugar()
-	e := &employee.Employee{}
+	e := models.CreateEmployeeRequest{}
 
-	if err := ctx.Bind(e); err != nil {
+	if err := ctx.Bind(&e); err != nil {
 		return err
 	}
 
-	if err := ctx.Validate(e); err != nil {
+	if err := ctx.Validate(&e); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	logger.With("employee", e).Info("creating new employee")
 
-	if err := s.employeeRepo.AddEmployee(ctx.Request().Context(), e); err != nil {
+	dbEmployee := employeeDbModelFromCreateRequest(e)
+
+	if err := s.employeeRepo.AddEmployee(ctx.Request().Context(), dbEmployee); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -56,7 +78,7 @@ func (s APIServer) FindEmployeeByID(ctx echo.Context, employeeID int64) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.JSON(http.StatusOK, e)
+	return ctx.JSON(http.StatusOK, employeeResponseFromDbModel(*e))
 }
 
 func (s APIServer) DeleteEmployee(ctx echo.Context, employeeID int64) error {

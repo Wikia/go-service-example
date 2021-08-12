@@ -13,7 +13,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/Wikia/go-example-service/cmd/models/employee"
+	"github.com/Wikia/go-example-service/cmd/models"
 
 	"github.com/Wikia/go-example-service/internal/logging"
 	"go.uber.org/zap"
@@ -22,22 +22,22 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/Wikia/go-example-service/cmd/models/employee/employeefakes"
+	"github.com/Wikia/go-example-service/cmd/models/modelsfakes"
 	"github.com/Wikia/go-example-service/cmd/server/public"
 )
 
-var stubEmployees = []employee.Employee{
+var stubEmployees = []models.EmployeeDbModel{
 	{
-		ID: 1, Name: "John Wick", City: "Atlanta",
+		ID: 0, Name: "John Wick", City: "Atlanta",
 	},
 	{
-		ID: 2, Name: "Wade Winston Wilson", City: "New York",
+		ID: 1, Name: "Wade Winston Wilson", City: "New York",
 	},
 }
 
 func TestGetAllEmployees(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	mockRepo.GetAllEmployeesReturns(stubEmployees, nil)
@@ -51,13 +51,13 @@ func TestGetAllEmployees(t *testing.T) {
 	if assert.NoError(t, server.GetAllEmployees(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.Equal(t, 1, mockRepo.GetAllEmployeesCallCount())
-		assert.JSONEq(t, `[{"ID":1,"Name":"John Wick","City":"Atlanta"},{"ID":2,"Name":"Wade Winston Wilson","City":"New York"}]`, rec.Body.String())
+		assert.JSONEq(t, `[{"id":0,"name":"John Wick","city":"Atlanta"},{"id":1,"name":"Wade Winston Wilson","city":"New York"}]`, rec.Body.String())
 	}
 }
 
 func TestGetAllEmployeesFail(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	mockRepo.GetAllEmployeesReturns(nil, errors.New("some error"))
@@ -78,7 +78,7 @@ func TestGetAllEmployeesFail(t *testing.T) {
 
 func TestDeleteEmployee(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	e := echo.New()
@@ -97,7 +97,7 @@ func TestDeleteEmployee(t *testing.T) {
 
 func TestDeleteEmployeeMissing(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 	mockRepo.DeleteEmployeeReturns(gorm.ErrRecordNotFound)
 
@@ -119,7 +119,7 @@ func TestDeleteEmployeeMissing(t *testing.T) {
 
 func TestFindEmployeeByID(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	mockRepo.GetEmployeeReturns(&stubEmployees[0], nil)
@@ -135,13 +135,13 @@ func TestFindEmployeeByID(t *testing.T) {
 		assert.Equal(t, 1, mockRepo.GetEmployeeCallCount())
 		_, id := mockRepo.GetEmployeeArgsForCall(0)
 		assert.EqualValues(t, 1, id)
-		assert.JSONEq(t, `{"ID":1,"Name":"John Wick","City":"Atlanta"}`, rec.Body.String())
+		assert.JSONEq(t, `{"id":0,"name":"John Wick","city":"Atlanta"}`, rec.Body.String())
 	}
 }
 
 func TestFindEmployeeByIDMissing(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	mockRepo.GetEmployeeReturns(nil, gorm.ErrRecordNotFound)
@@ -165,7 +165,7 @@ func TestFindEmployeeByIDMissing(t *testing.T) {
 
 func TestCreateEmployee(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	e := echo.New()
@@ -190,9 +190,9 @@ func TestCreateEmployee(t *testing.T) {
 
 func TestCreateEmployeeInvalid(t *testing.T) {
 	t.Parallel()
-	mockRepo := &employeefakes.FakeRepository{}
+	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
-	badEmployee := employee.Employee{Name: "Joker"}
+	badEmployee := models.EmployeeDbModel{Name: "Joker"}
 
 	e := echo.New()
 	e.Validator = &validator.EchoValidator{}
