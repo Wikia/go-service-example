@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type EmployeeDbModel struct {
+type EmployeeDBModel struct {
 	ID   int    `gorm:"column:id;primaryKey"`
 	Name string `gorm:"column:name"`
 	City string `gorm:"column:city"`
@@ -16,20 +16,20 @@ type EmployeeDbModel struct {
 
 //counterfeiter:generate . Repository
 type Repository interface {
-	GetAllEmployees(ctx context.Context) ([]EmployeeDbModel, error)
-	AddEmployee(ctx context.Context, newEmployee *EmployeeDbModel) error
-	GetEmployee(ctx context.Context, employeeID int64) (*EmployeeDbModel, error)
+	GetAllEmployees(ctx context.Context) ([]EmployeeDBModel, error)
+	AddEmployee(ctx context.Context, newEmployee *EmployeeDBModel) error
+	GetEmployee(ctx context.Context, employeeID int64) (*EmployeeDBModel, error)
 	DeleteEmployee(ctx context.Context, employeeID int64) error
 }
 
 func InitData(db *gorm.DB) (err error) {
-	err = db.AutoMigrate(&EmployeeDbModel{})
+	err = db.AutoMigrate(&EmployeeDBModel{})
 	if err != nil {
 		return
 	}
 
-	db.Create(&EmployeeDbModel{Name: "Przemek", City: "Olsztyn"})
-	db.Create(&EmployeeDbModel{Name: "Łukasz", City: "Poznań"})
+	db.Create(&EmployeeDBModel{Name: "Przemek", City: "Olsztyn"})
+	db.Create(&EmployeeDBModel{Name: "Łukasz", City: "Poznań"})
 
 	return
 }

@@ -26,7 +26,7 @@ import (
 	"github.com/Wikia/go-example-service/cmd/server/public"
 )
 
-var stubEmployees = []models.EmployeeDbModel{
+var stubEmployees = []models.EmployeeDBModel{
 	{
 		ID: 0, Name: "John Wick", City: "Atlanta",
 	},
@@ -192,7 +192,7 @@ func TestCreateEmployeeInvalid(t *testing.T) {
 	t.Parallel()
 	mockRepo := &modelsfakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
-	badEmployee := models.EmployeeDbModel{Name: "Joker"}
+	badEmployee := models.EmployeeDBModel{Name: "Joker"}
 
 	e := echo.New()
 	e.Validator = &validator.EchoValidator{}

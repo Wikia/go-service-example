@@ -9,11 +9,11 @@ import (
 )
 
 type FakeRepository struct {
-	AddEmployeeStub        func(context.Context, *models.EmployeeDbModel) error
+	AddEmployeeStub        func(context.Context, *models.EmployeeDBModel) error
 	addEmployeeMutex       sync.RWMutex
 	addEmployeeArgsForCall []struct {
 		arg1 context.Context
-		arg2 *models.EmployeeDbModel
+		arg2 *models.EmployeeDBModel
 	}
 	addEmployeeReturns struct {
 		result1 error
@@ -33,43 +33,43 @@ type FakeRepository struct {
 	deleteEmployeeReturnsOnCall map[int]struct {
 		result1 error
 	}
-	GetAllEmployeesStub        func(context.Context) ([]models.EmployeeDbModel, error)
+	GetAllEmployeesStub        func(context.Context) ([]models.EmployeeDBModel, error)
 	getAllEmployeesMutex       sync.RWMutex
 	getAllEmployeesArgsForCall []struct {
 		arg1 context.Context
 	}
 	getAllEmployeesReturns struct {
-		result1 []models.EmployeeDbModel
+		result1 []models.EmployeeDBModel
 		result2 error
 	}
 	getAllEmployeesReturnsOnCall map[int]struct {
-		result1 []models.EmployeeDbModel
+		result1 []models.EmployeeDBModel
 		result2 error
 	}
-	GetEmployeeStub        func(context.Context, int64) (*models.EmployeeDbModel, error)
+	GetEmployeeStub        func(context.Context, int64) (*models.EmployeeDBModel, error)
 	getEmployeeMutex       sync.RWMutex
 	getEmployeeArgsForCall []struct {
 		arg1 context.Context
 		arg2 int64
 	}
 	getEmployeeReturns struct {
-		result1 *models.EmployeeDbModel
+		result1 *models.EmployeeDBModel
 		result2 error
 	}
 	getEmployeeReturnsOnCall map[int]struct {
-		result1 *models.EmployeeDbModel
+		result1 *models.EmployeeDBModel
 		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeRepository) AddEmployee(arg1 context.Context, arg2 *models.EmployeeDbModel) error {
+func (fake *FakeRepository) AddEmployee(arg1 context.Context, arg2 *models.EmployeeDBModel) error {
 	fake.addEmployeeMutex.Lock()
 	ret, specificReturn := fake.addEmployeeReturnsOnCall[len(fake.addEmployeeArgsForCall)]
 	fake.addEmployeeArgsForCall = append(fake.addEmployeeArgsForCall, struct {
 		arg1 context.Context
-		arg2 *models.EmployeeDbModel
+		arg2 *models.EmployeeDBModel
 	}{arg1, arg2})
 	stub := fake.AddEmployeeStub
 	fakeReturns := fake.addEmployeeReturns
@@ -90,13 +90,13 @@ func (fake *FakeRepository) AddEmployeeCallCount() int {
 	return len(fake.addEmployeeArgsForCall)
 }
 
-func (fake *FakeRepository) AddEmployeeCalls(stub func(context.Context, *models.EmployeeDbModel) error) {
+func (fake *FakeRepository) AddEmployeeCalls(stub func(context.Context, *models.EmployeeDBModel) error) {
 	fake.addEmployeeMutex.Lock()
 	defer fake.addEmployeeMutex.Unlock()
 	fake.AddEmployeeStub = stub
 }
 
-func (fake *FakeRepository) AddEmployeeArgsForCall(i int) (context.Context, *models.EmployeeDbModel) {
+func (fake *FakeRepository) AddEmployeeArgsForCall(i int) (context.Context, *models.EmployeeDBModel) {
 	fake.addEmployeeMutex.RLock()
 	defer fake.addEmployeeMutex.RUnlock()
 	argsForCall := fake.addEmployeeArgsForCall[i]
@@ -188,7 +188,7 @@ func (fake *FakeRepository) DeleteEmployeeReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeRepository) GetAllEmployees(arg1 context.Context) ([]models.EmployeeDbModel, error) {
+func (fake *FakeRepository) GetAllEmployees(arg1 context.Context) ([]models.EmployeeDBModel, error) {
 	fake.getAllEmployeesMutex.Lock()
 	ret, specificReturn := fake.getAllEmployeesReturnsOnCall[len(fake.getAllEmployeesArgsForCall)]
 	fake.getAllEmployeesArgsForCall = append(fake.getAllEmployeesArgsForCall, struct {
@@ -213,7 +213,7 @@ func (fake *FakeRepository) GetAllEmployeesCallCount() int {
 	return len(fake.getAllEmployeesArgsForCall)
 }
 
-func (fake *FakeRepository) GetAllEmployeesCalls(stub func(context.Context) ([]models.EmployeeDbModel, error)) {
+func (fake *FakeRepository) GetAllEmployeesCalls(stub func(context.Context) ([]models.EmployeeDBModel, error)) {
 	fake.getAllEmployeesMutex.Lock()
 	defer fake.getAllEmployeesMutex.Unlock()
 	fake.GetAllEmployeesStub = stub
@@ -226,33 +226,33 @@ func (fake *FakeRepository) GetAllEmployeesArgsForCall(i int) context.Context {
 	return argsForCall.arg1
 }
 
-func (fake *FakeRepository) GetAllEmployeesReturns(result1 []models.EmployeeDbModel, result2 error) {
+func (fake *FakeRepository) GetAllEmployeesReturns(result1 []models.EmployeeDBModel, result2 error) {
 	fake.getAllEmployeesMutex.Lock()
 	defer fake.getAllEmployeesMutex.Unlock()
 	fake.GetAllEmployeesStub = nil
 	fake.getAllEmployeesReturns = struct {
-		result1 []models.EmployeeDbModel
+		result1 []models.EmployeeDBModel
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeRepository) GetAllEmployeesReturnsOnCall(i int, result1 []models.EmployeeDbModel, result2 error) {
+func (fake *FakeRepository) GetAllEmployeesReturnsOnCall(i int, result1 []models.EmployeeDBModel, result2 error) {
 	fake.getAllEmployeesMutex.Lock()
 	defer fake.getAllEmployeesMutex.Unlock()
 	fake.GetAllEmployeesStub = nil
 	if fake.getAllEmployeesReturnsOnCall == nil {
 		fake.getAllEmployeesReturnsOnCall = make(map[int]struct {
-			result1 []models.EmployeeDbModel
+			result1 []models.EmployeeDBModel
 			result2 error
 		})
 	}
 	fake.getAllEmployeesReturnsOnCall[i] = struct {
-		result1 []models.EmployeeDbModel
+		result1 []models.EmployeeDBModel
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeRepository) GetEmployee(arg1 context.Context, arg2 int64) (*models.EmployeeDbModel, error) {
+func (fake *FakeRepository) GetEmployee(arg1 context.Context, arg2 int64) (*models.EmployeeDBModel, error) {
 	fake.getEmployeeMutex.Lock()
 	ret, specificReturn := fake.getEmployeeReturnsOnCall[len(fake.getEmployeeArgsForCall)]
 	fake.getEmployeeArgsForCall = append(fake.getEmployeeArgsForCall, struct {
@@ -278,7 +278,7 @@ func (fake *FakeRepository) GetEmployeeCallCount() int {
 	return len(fake.getEmployeeArgsForCall)
 }
 
-func (fake *FakeRepository) GetEmployeeCalls(stub func(context.Context, int64) (*models.EmployeeDbModel, error)) {
+func (fake *FakeRepository) GetEmployeeCalls(stub func(context.Context, int64) (*models.EmployeeDBModel, error)) {
 	fake.getEmployeeMutex.Lock()
 	defer fake.getEmployeeMutex.Unlock()
 	fake.GetEmployeeStub = stub
@@ -291,28 +291,28 @@ func (fake *FakeRepository) GetEmployeeArgsForCall(i int) (context.Context, int6
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *FakeRepository) GetEmployeeReturns(result1 *models.EmployeeDbModel, result2 error) {
+func (fake *FakeRepository) GetEmployeeReturns(result1 *models.EmployeeDBModel, result2 error) {
 	fake.getEmployeeMutex.Lock()
 	defer fake.getEmployeeMutex.Unlock()
 	fake.GetEmployeeStub = nil
 	fake.getEmployeeReturns = struct {
-		result1 *models.EmployeeDbModel
+		result1 *models.EmployeeDBModel
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeRepository) GetEmployeeReturnsOnCall(i int, result1 *models.EmployeeDbModel, result2 error) {
+func (fake *FakeRepository) GetEmployeeReturnsOnCall(i int, result1 *models.EmployeeDBModel, result2 error) {
 	fake.getEmployeeMutex.Lock()
 	defer fake.getEmployeeMutex.Unlock()
 	fake.GetEmployeeStub = nil
 	if fake.getEmployeeReturnsOnCall == nil {
 		fake.getEmployeeReturnsOnCall = make(map[int]struct {
-			result1 *models.EmployeeDbModel
+			result1 *models.EmployeeDBModel
 			result2 error
 		})
 	}
 	fake.getEmployeeReturnsOnCall[i] = struct {
-		result1 *models.EmployeeDbModel
+		result1 *models.EmployeeDBModel
 		result2 error
 	}{result1, result2}
 }

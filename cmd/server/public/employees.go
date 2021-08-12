@@ -12,14 +12,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func employeeDbModelFromCreateRequest(e models.CreateEmployeeRequest) *models.EmployeeDbModel {
-	return &models.EmployeeDbModel{
+func employeeDBModelFromCreateRequest(e models.CreateEmployeeRequest) *models.EmployeeDBModel {
+	return &models.EmployeeDBModel{
 		Name: e.Name,
 		City: e.City,
 	}
 }
 
-func employeeResponseFromDbModel(e models.EmployeeDbModel) *models.EmployeeResponse {
+func employeeResponseFromDBModel(e models.EmployeeDBModel) *models.EmployeeResponse {
 	return &models.EmployeeResponse{
 		ID:   e.ID,
 		Name: e.Name,
@@ -38,7 +38,7 @@ func (s APIServer) GetAllEmployees(ctx echo.Context) error {
 
 	response := make([]*models.EmployeeResponse, len(people))
 	for pos, e := range people {
-		response[pos] = employeeResponseFromDbModel(e)
+		response[pos] = employeeResponseFromDBModel(e)
 	}
 
 	return ctx.JSON(http.StatusOK, response)
@@ -58,7 +58,7 @@ func (s APIServer) CreateEmployee(ctx echo.Context) error {
 
 	logger.With("employee", e).Info("creating new employee")
 
-	dbEmployee := employeeDbModelFromCreateRequest(e)
+	dbEmployee := employeeDBModelFromCreateRequest(e)
 
 	if err := s.employeeRepo.AddEmployee(ctx.Request().Context(), dbEmployee); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -78,7 +78,7 @@ func (s APIServer) FindEmployeeByID(ctx echo.Context, employeeID int64) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return ctx.JSON(http.StatusOK, employeeResponseFromDbModel(*e))
+	return ctx.JSON(http.StatusOK, employeeResponseFromDBModel(*e))
 }
 
 func (s APIServer) DeleteEmployee(ctx echo.Context, employeeID int64) error {
