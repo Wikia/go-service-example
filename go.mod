@@ -20,7 +20,7 @@ require (
 	go.uber.org/atomic v1.8.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.0
-	gorm.io/driver/mysql v1.1.1
+	gorm.io/driver/mysql v1.1.2
 	gorm.io/gorm v1.21.12
 	gorm.io/plugin/dbresolver v1.1.0
 	gorm.io/plugin/opentracing v0.0.0-20210506132430-24a9caea7709
