@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Wikia/go-commons/logging"
 	"github.com/Wikia/go-example-service/api"
 	"github.com/Wikia/go-example-service/internal/database"
-	"github.com/Wikia/go-example-service/internal/logging"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"

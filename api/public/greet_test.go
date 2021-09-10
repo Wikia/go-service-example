@@ -5,10 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/Wikia/go-commons/logging"
+	"github.com/Wikia/go-commons/validator"
 	"github.com/Wikia/go-example-service/api/public"
 	"github.com/Wikia/go-example-service/internal/database/databasefakes"
-	"github.com/Wikia/go-example-service/internal/logging"
-	"github.com/Wikia/go-example-service/internal/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

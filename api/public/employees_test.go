@@ -7,15 +7,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/Wikia/go-commons/logging"
+	"github.com/Wikia/go-commons/validator"
 	"github.com/Wikia/go-example-service/internal/database"
 	"github.com/Wikia/go-example-service/internal/database/databasefakes"
 	"github.com/pkg/errors"
 
-	"github.com/Wikia/go-example-service/internal/validator"
-
 	"gorm.io/gorm"
 
-	"github.com/Wikia/go-example-service/internal/logging"
 	"go.uber.org/zap"
 
 	"github.com/labstack/echo/v4"

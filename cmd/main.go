@@ -9,15 +9,16 @@ import (
 	"os/signal"
 	"time"
 
+	dbcommons "github.com/Wikia/go-commons/database"
+	"github.com/Wikia/go-commons/tracing"
+	"github.com/Wikia/go-example-service/internal/database"
 	"github.com/labstack/echo/v4"
+	dblogger "gorm.io/gorm/logger"
 
 	"github.com/Wikia/go-example-service/api/admin"
 	"github.com/Wikia/go-example-service/api/public"
 	"github.com/Wikia/go-example-service/cmd/openapi"
 
-	"github.com/Wikia/go-example-service/internal/database"
-
-	"github.com/Wikia/go-example-service/internal/tracing"
 	"github.com/Wikia/go-example-service/metrics"
 	"github.com/ardanlabs/conf"
 	"github.com/pkg/errors"
@@ -149,7 +150,7 @@ func run() error {
 
 	// =========================================================================
 	// DB
-	db, err := database.GetConnection(logger, cfg.DB.Sources, cfg.DB.Replicas, cfg.DB.ConnMaxIdleTime, cfg.DB.ConnMaxLifeTime, cfg.DB.MaxIdleConns, cfg.DB.MaxOpenConns)
+	db, err := dbcommons.GetConnection(logger, dblogger.Info, cfg.DB.Sources, cfg.DB.Replicas, cfg.DB.ConnMaxIdleTime, cfg.DB.ConnMaxLifeTime, cfg.DB.MaxIdleConns, cfg.DB.MaxOpenConns)
 
 	if err != nil {
 		logger.With(zap.Error(err)).Panic("could not connect to the database")
