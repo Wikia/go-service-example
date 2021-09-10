@@ -3,6 +3,7 @@ module github.com/Wikia/go-example-service
 go 1.16
 
 require (
+	github.com/Wikia/go-commons v0.1.5-0.20210910163313-ba34abffc6fd // indirect
 	github.com/ardanlabs/conf v1.5.0
 	github.com/deepmap/oapi-codegen v1.8.2
 	github.com/getkin/kin-openapi v0.75.0

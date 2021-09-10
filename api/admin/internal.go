@@ -3,10 +3,10 @@ package admin
 import (
 	"net/http"
 
+	"github.com/Wikia/go-commons/logging"
 	"github.com/pkg/errors"
 
 	internalHandlers "github.com/Wikia/go-example-service/internal/handlers"
-	"github.com/Wikia/go-example-service/internal/logging"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
