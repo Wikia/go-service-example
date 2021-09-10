@@ -1,4 +1,4 @@
-package models
+package api
 
 type CreateEmployeeRequest struct {
 	Name string `json:"name" validate:"required,gt=3"`

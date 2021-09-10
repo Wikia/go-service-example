@@ -7,13 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/Wikia/go-example-service/internal/database"
+	"github.com/Wikia/go-example-service/internal/database/databasefakes"
 	"github.com/pkg/errors"
 
 	"github.com/Wikia/go-example-service/internal/validator"
 
 	"gorm.io/gorm"
-
-	"github.com/Wikia/go-example-service/cmd/models"
 
 	"github.com/Wikia/go-example-service/internal/logging"
 	"go.uber.org/zap"
@@ -22,11 +22,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/Wikia/go-example-service/cmd/models/modelsfakes"
-	"github.com/Wikia/go-example-service/cmd/server/public"
+	"github.com/Wikia/go-example-service/api/public"
 )
 
-var stubEmployees = []models.EmployeeDBModel{
+var stubEmployees = []database.EmployeeDBModel{
 	{
 		ID: 0, Name: "John Wick", City: "Atlanta",
 	},
@@ -37,7 +36,7 @@ var stubEmployees = []models.EmployeeDBModel{
 
 func TestGetAllEmployees(t *testing.T) {
 	t.Parallel()
-	mockRepo := &modelsfakes.FakeRepository{}
+	mockRepo := &databasefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	mockRepo.GetAllEmployeesReturns(stubEmployees, nil)
@@ -57,7 +56,7 @@ func TestGetAllEmployees(t *testing.T) {
 
 func TestGetAllEmployeesFail(t *testing.T) {
 	t.Parallel()
-	mockRepo := &modelsfakes.FakeRepository{}
+	mockRepo := &databasefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	mockRepo.GetAllEmployeesReturns(nil, errors.New("some error"))
@@ -78,7 +77,7 @@ func TestGetAllEmployeesFail(t *testing.T) {
 
 func TestDeleteEmployee(t *testing.T) {
 	t.Parallel()
-	mockRepo := &modelsfakes.FakeRepository{}
+	mockRepo := &databasefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	e := echo.New()
@@ -97,7 +96,7 @@ func TestDeleteEmployee(t *testing.T) {
 
 func TestDeleteEmployeeMissing(t *testing.T) {
 	t.Parallel()
-	mockRepo := &modelsfakes.FakeRepository{}
+	mockRepo := &databasefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 	mockRepo.DeleteEmployeeReturns(gorm.ErrRecordNotFound)
 
@@ -119,7 +118,7 @@ func TestDeleteEmployeeMissing(t *testing.T) {
 
 func TestFindEmployeeByID(t *testing.T) {
 	t.Parallel()
-	mockRepo := &modelsfakes.FakeRepository{}
+	mockRepo := &databasefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	mockRepo.GetEmployeeReturns(&stubEmployees[0], nil)
@@ -141,7 +140,7 @@ func TestFindEmployeeByID(t *testing.T) {
 
 func TestFindEmployeeByIDMissing(t *testing.T) {
 	t.Parallel()
-	mockRepo := &modelsfakes.FakeRepository{}
+	mockRepo := &databasefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	mockRepo.GetEmployeeReturns(nil, gorm.ErrRecordNotFound)
@@ -165,7 +164,7 @@ func TestFindEmployeeByIDMissing(t *testing.T) {
 
 func TestCreateEmployee(t *testing.T) {
 	t.Parallel()
-	mockRepo := &modelsfakes.FakeRepository{}
+	mockRepo := &databasefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
 
 	e := echo.New()
@@ -190,9 +189,9 @@ func TestCreateEmployee(t *testing.T) {
 
 func TestCreateEmployeeInvalid(t *testing.T) {
 	t.Parallel()
-	mockRepo := &modelsfakes.FakeRepository{}
+	mockRepo := &databasefakes.FakeRepository{}
 	server := public.NewAPIServer(mockRepo)
-	badEmployee := models.EmployeeDBModel{Name: "Joker"}
+	badEmployee := database.EmployeeDBModel{Name: "Joker"}
 
 	e := echo.New()
 	e.Validator = &validator.EchoValidator{}

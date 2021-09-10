@@ -11,16 +11,14 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/Wikia/go-example-service/cmd/models"
-
+	"github.com/Wikia/go-example-service/api/admin"
+	"github.com/Wikia/go-example-service/api/public"
 	"github.com/Wikia/go-example-service/cmd/openapi"
-	"github.com/Wikia/go-example-service/cmd/server/admin"
-	"github.com/Wikia/go-example-service/cmd/server/public"
 
 	"github.com/Wikia/go-example-service/internal/database"
 
-	"github.com/Wikia/go-example-service/cmd/metrics"
 	"github.com/Wikia/go-example-service/internal/tracing"
+	"github.com/Wikia/go-example-service/metrics"
 	"github.com/ardanlabs/conf"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -166,7 +164,7 @@ func run() error {
 	if err != nil || len(result) == 0 {
 		logger.Info("no tables found - initializing database")
 
-		if err = models.InitData(db); err != nil {
+		if err = database.InitData(db); err != nil {
 			logger.With(zap.Error(err)).Warn("could not initialize database")
 		}
 	}
@@ -215,7 +213,7 @@ func run() error {
 	internalAPI.HidePort = cfg.Environment != LocalhostEnv
 	go startServer(logger, internalAPI, cfg.Web.InternalHost)
 
-	sqlRepo := models.NewSQLRepository(db)
+	sqlRepo := database.NewSQLRepository(db)
 	publicAPI := public.NewPublicAPI(logger, tracer, AppName, sqlRepo, swagger)
 	publicAPI.HideBanner = true // no need to see it twice
 	publicAPI.HidePort = cfg.Environment != LocalhostEnv

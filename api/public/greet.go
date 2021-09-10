@@ -5,7 +5,7 @@ import (
 
 	"github.com/Wikia/go-example-service/internal/logging"
 
-	"github.com/Wikia/go-example-service/cmd/metrics"
+	"github.com/Wikia/go-example-service/metrics"
 	"github.com/labstack/echo/v4"
 )
 

@@ -4,23 +4,23 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Wikia/go-example-service/cmd/models"
-
+	"github.com/Wikia/go-example-service/api"
+	"github.com/Wikia/go-example-service/internal/database"
 	"github.com/Wikia/go-example-service/internal/logging"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
-func employeeDBModelFromCreateRequest(e models.CreateEmployeeRequest) *models.EmployeeDBModel {
-	return &models.EmployeeDBModel{
+func employeeDBModelFromCreateRequest(e api.CreateEmployeeRequest) *database.EmployeeDBModel {
+	return &database.EmployeeDBModel{
 		Name: e.Name,
 		City: e.City,
 	}
 }
 
-func employeeResponseFromDBModel(e models.EmployeeDBModel) *models.EmployeeResponse {
-	return &models.EmployeeResponse{
+func employeeResponseFromDBModel(e database.EmployeeDBModel) *api.EmployeeResponse {
+	return &api.EmployeeResponse{
 		ID:   e.ID,
 		Name: e.Name,
 		City: e.City,
@@ -36,7 +36,7 @@ func (s APIServer) GetAllEmployees(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	response := make([]*models.EmployeeResponse, len(people))
+	response := make([]*api.EmployeeResponse, len(people))
 	for pos, e := range people {
 		response[pos] = employeeResponseFromDBModel(e)
 	}
@@ -46,7 +46,7 @@ func (s APIServer) GetAllEmployees(ctx echo.Context) error {
 
 func (s APIServer) CreateEmployee(ctx echo.Context) error {
 	logger := logging.FromEchoContext(ctx).Sugar()
-	e := models.CreateEmployeeRequest{}
+	e := api.CreateEmployeeRequest{}
 
 	if err := ctx.Bind(&e); err != nil {
 		return err
