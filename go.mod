@@ -17,7 +17,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/atomic v1.8.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
-	go.uber.org/zap v1.19.0
+	go.uber.org/zap v1.19.1
 	gorm.io/gorm v1.21.14
 	gorm.io/plugin/opentracing v0.0.0-20210506132430-24a9caea7709
 )
