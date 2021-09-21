@@ -21,6 +21,7 @@ func NewInternalAPI(logger *zap.Logger, swagger *openapi3.T) *echo.Echo {
 
 	r.Use(
 		middleware.RemoveTrailingSlash(),
+		logging.LoggerInContext(logger),
 		logging.EchoLogger(logger),
 		middleware.RecoverWithConfig(middleware.RecoverConfig{LogLevel: log.ERROR}),
 	)
