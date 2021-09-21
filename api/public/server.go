@@ -38,6 +38,7 @@ func NewPublicAPI(logger *zap.Logger, tracer opentracing.Tracer, appName string,
 	r.Use(
 		middleware.RemoveTrailingSlash(),
 		traceMiddleware,
+		logging.LoggerInContext(logger),
 		logging.EchoLogger(logger),
 	)
 
