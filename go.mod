@@ -6,7 +6,7 @@ require (
 	github.com/Wikia/go-commons v0.2.0
 	github.com/ardanlabs/conf v1.5.0
 	github.com/deepmap/oapi-codegen v1.8.2
-	github.com/getkin/kin-openapi v0.75.0
+	github.com/getkin/kin-openapi v0.76.0
 	github.com/labstack/echo-contrib v0.11.0
 	github.com/labstack/echo/v4 v4.6.0
 	github.com/labstack/gommon v0.3.0
