@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/Wikia/go-commons/logging"
-	"github.com/Wikia/go-example-service/api"
-	"github.com/Wikia/go-example-service/internal/database"
+	"github.com/Wikia/go-service-example/api"
+	"github.com/Wikia/go-service-example/internal/database"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"

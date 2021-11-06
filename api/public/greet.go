@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Wikia/go-commons/logging"
-	"github.com/Wikia/go-example-service/metrics"
+	"github.com/Wikia/go-service-example/metrics"
 	"github.com/labstack/echo/v4"
 )
 

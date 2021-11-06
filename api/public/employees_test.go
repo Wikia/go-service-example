@@ -9,8 +9,8 @@ import (
 
 	"github.com/Wikia/go-commons/logging"
 	"github.com/Wikia/go-commons/validator"
-	"github.com/Wikia/go-example-service/internal/database"
-	"github.com/Wikia/go-example-service/internal/database/databasefakes"
+	"github.com/Wikia/go-service-example/internal/database"
+	"github.com/Wikia/go-service-example/internal/database/databasefakes"
 	"github.com/pkg/errors"
 
 	"gorm.io/gorm"
@@ -21,7 +21,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/Wikia/go-example-service/api/public"
+	"github.com/Wikia/go-service-example/api/public"
 )
 
 var stubEmployees = []database.EmployeeDBModel{

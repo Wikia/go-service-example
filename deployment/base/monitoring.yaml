@@ -1,9 +1,9 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: go-example-service
+  name: go-service-example
   labels:
-    app: go-example-service
+    app: go-service-example
 spec:
   jobLabel: app
   selector:

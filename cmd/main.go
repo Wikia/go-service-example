@@ -11,15 +11,15 @@ import (
 
 	dbcommons "github.com/Wikia/go-commons/database"
 	"github.com/Wikia/go-commons/tracing"
-	"github.com/Wikia/go-example-service/internal/database"
+	"github.com/Wikia/go-service-example/internal/database"
 	"github.com/labstack/echo/v4"
 	dblogger "gorm.io/gorm/logger"
 
-	"github.com/Wikia/go-example-service/api/admin"
-	"github.com/Wikia/go-example-service/api/public"
-	"github.com/Wikia/go-example-service/cmd/openapi"
+	"github.com/Wikia/go-service-example/api/admin"
+	"github.com/Wikia/go-service-example/api/public"
+	"github.com/Wikia/go-service-example/cmd/openapi"
 
-	"github.com/Wikia/go-example-service/metrics"
+	"github.com/Wikia/go-service-example/metrics"
 	"github.com/ardanlabs/conf"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"

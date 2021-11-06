@@ -4,7 +4,7 @@ metadata:
   labels:
     prometheus: dev
     role: alert-rules
-  name: go-example-service
+  name: go-service-example
 spec:
   groups:
     - name: go-service-example.rules

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   annotations:
     traefik.frontend.rule.type: PathPrefixStrip
-  name: go-example-service
+  name: go-service-example
 spec:
   replicas: 0
   template:

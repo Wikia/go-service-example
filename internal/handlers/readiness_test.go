@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Wikia/go-example-service/internal/handlers"
+	"github.com/Wikia/go-service-example/internal/handlers"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/labstack/echo/v4"

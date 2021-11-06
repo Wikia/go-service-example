@@ -7,8 +7,8 @@ import (
 
 	"github.com/Wikia/go-commons/logging"
 	"github.com/Wikia/go-commons/validator"
-	"github.com/Wikia/go-example-service/api/public"
-	"github.com/Wikia/go-example-service/internal/database/databasefakes"
+	"github.com/Wikia/go-service-example/api/public"
+	"github.com/Wikia/go-service-example/internal/database/databasefakes"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

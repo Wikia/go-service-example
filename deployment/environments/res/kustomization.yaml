@@ -33,16 +33,16 @@ patches:
     patch: |-
       - op: replace
         path: /spec/rules/0/host
-        value: go-example-service.prod.res.k8s.wikia.net
+        value: go-service-example.prod.res.k8s.wikia.net
       - op: replace
         path: /spec/rules/1/host
         value: prod.res.k8s.wikia.net
       - op: replace
         path: /spec/rules/2/host
-        value: go-example-service-admin.res.k8s.wikia.net
+        value: go-service-example-admin.res.k8s.wikia.net
       - op: replace
         path: /spec/rules/3/host
-        value: go-example-service-debug.res.k8s.wikia.net
+        value: go-service-example-debug.res.k8s.wikia.net
       - op: replace
         path: /spec/rules/4/host
         value: services.wikia.com

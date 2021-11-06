@@ -3,8 +3,8 @@ package public
 import (
 	"github.com/Wikia/go-commons/logging"
 	"github.com/Wikia/go-commons/validator"
-	"github.com/Wikia/go-example-service/cmd/openapi"
-	"github.com/Wikia/go-example-service/internal/database"
+	"github.com/Wikia/go-service-example/cmd/openapi"
+	"github.com/Wikia/go-service-example/internal/database"
 	openapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo-contrib/jaegertracing"

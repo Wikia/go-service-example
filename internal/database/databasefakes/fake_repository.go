@@ -5,7 +5,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/Wikia/go-example-service/internal/database"
+	"github.com/Wikia/go-service-example/internal/database"
 )
 
 type FakeRepository struct {
