@@ -1,9 +1,10 @@
-module github.com/Wikia/go-example-service
+module github.com/Wikia/go-service-example
 
 go 1.16
 
 require (
 	github.com/Wikia/go-commons v0.2.0
+	github.com/Wikia/go-example-service v0.0.0-20211106190523-00b0c9d96b14
 	github.com/ardanlabs/conf v1.5.0
 	github.com/deepmap/oapi-codegen v1.8.3
 	github.com/getkin/kin-openapi v0.80.0
@@ -15,8 +16,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/stretchr/testify v1.7.0
-	go.uber.org/atomic v1.8.0 // indirect
-	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.1
 	gorm.io/gorm v1.21.16
 	gorm.io/plugin/opentracing v0.0.0-20210506132430-24a9caea7709
