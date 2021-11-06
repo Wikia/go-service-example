@@ -1,6 +1,6 @@
 module github.com/Wikia/go-service-example
 
-go 1.16
+go 1.17
 
 require (
 	github.com/Wikia/go-commons v0.2.0

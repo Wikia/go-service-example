@@ -1,7 +1,7 @@
 .PHONY: build build-alpine clean test help default lint run-local bump-version
 
-BIN_NAME = go-example-service
-GITHUB_REPO = github.com/wikia/go-example-service
+BIN_NAME = go-service-example
+GITHUB_REPO = github.com/wikia/go-service-example
 BIN_DIR := $(GOPATH)/bin
 GOLANGCI_LINT := /usr/local/bin/golangci-lint
 GORELEASER := /usr/local/bin/goreleaser
