@@ -18,39 +18,39 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: datacenter
-                  name: go-example-service
+                  name: go-service-example
             - name: JAEGER_AGENT_HOST
               valueFrom:
                 configMapKeyRef:
                   key: jaeger_agent_host
-                  name: go-example-service
+                  name: go-service-example
             - name: JAEGER_SERVICE_NAME
               valueFrom:
                 configMapKeyRef:
                   key: jaeger_service_name
-                  name: go-example-service
+                  name: go-service-example
             - name: JAEGER_REPORTER_LOG_SPANS
               valueFrom:
                 configMapKeyRef:
                   key: jaeger_reporter_log_spans
-                  name: go-example-service
+                  name: go-service-example
             - name: JAEGER_AGENT_PORT
               valueFrom:
                 configMapKeyRef:
                   key: jaeger_agent_port
-                  name: go-example-service
+                  name: go-service-example
             - name: JAEGER_SAMPLER_PARAM
               valueFrom:
                 configMapKeyRef:
                   key: jaeger_sampler_param
-                  name: go-example-service
+                  name: go-service-example
             - name: JAEGER_SAMPLER_TYPE
               valueFrom:
                 configMapKeyRef:
                   key: jaeger_sampler_type
-                  name: go-example-service
-          image: artifactory.wikia-inc.com/services/go-example-service:v0.0.0
-          name: go-example-service
+                  name: go-service-example
+          image: artifactory.wikia-inc.com/services/go-service-example:v0.0.0
+          name: go-service-example
           livenessProbe:
             httpGet:
               path: /health/alive

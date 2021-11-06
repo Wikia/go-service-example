@@ -9,7 +9,7 @@ spec:
       initContainers:
         - image: artifactory.wikia-inc.com/ops/init-vault:0.13
           args: #select your secrets here.  You can also try the --debug flag for verbose logging
-            - SECRET=secret/app/dev/go-example-service/rabbit_credentials.password
+            - SECRET=secret/app/dev/go-service-example/rabbit_credentials.password
           name: secrets
           volumeMounts:
             - name: secrets-dir # secrets are stored here
@@ -19,9 +19,9 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: vault_address
-                  name: go-example-service
+                  name: go-service-example
             - name: ENV
               valueFrom:
                 configMapKeyRef:
                   key: jobrunner_environment
-                  name: go-example-service
+                  name: go-service-example

@@ -6,10 +6,10 @@ generatorOptions:
 resources:
   - ../../base
 replicas:
-  - name: go-example-service
+  - name: go-service-example
     count: 1
 configMapGenerator:
-  - name: go-example-service
+  - name: go-service-example
     behavior: merge
     literals:
       - vault_address=active.vault.service.res.consul:8200

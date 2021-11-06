@@ -7,20 +7,20 @@ resources:
   - monitoring.yaml
   - alerting.yaml
 images:
-  - name: artifactory.wikia-inc.com/services/go-example-service
+  - name: artifactory.wikia-inc.com/services/go-service-example
     newTag: CHANGEME
 patches:
   - path: initContainer.yaml
     target:
       kind: Deployment
-      name: go-example-service
+      name: go-service-example
 commonLabels:
   team: YOUR_TEAM_NAME_HERE
-  app: go-example-service
+  app: go-service-example
 generatorOptions:
   disableNameSuffixHash: true
 configMapGenerator:
-  - name: go-example-service
+  - name: go-service-example
     literals:
       - jaeger_reporter_log_spans=false
       - jaeger_agent_host=localhost

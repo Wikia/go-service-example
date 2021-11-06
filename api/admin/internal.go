@@ -6,9 +6,8 @@ import (
 	"github.com/Wikia/go-commons/logging"
 	"github.com/pkg/errors"
 
-	internalHandlers "github.com/Wikia/go-example-service/internal/handlers"
+	internalHandlers "github.com/Wikia/go-service-example/internal/handlers"
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

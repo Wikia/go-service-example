@@ -7,18 +7,18 @@ metadata:
   name: go-example-service
 spec:
   groups:
-    - name: go-example-service.rules
+    - name: go-service-example.rules
       rules:
-        - alert: go-example-service-down
-          expr: 100 * (count(up{service="go-example-service"} == 0) BY (service) / count(up{service="go-example-service"}) BY (service)) > 10
+        - alert: go-service-example-down
+          expr: 100 * (count(up{service="go-service-example"} == 0) BY (service) / count(up{service="go-service-example"}) BY (service)) > 10
           for: 2m
           labels:
             severity: warning
             team: YOUR_TEAM_NAME
           annotations:
             description: '{{ $value | humanize }}% of {{ $labels.service }} targets are down.'
-        - alert: go-example-service-5xx-ratio
-          expr: 100 * sum(rate(http_handler_statuses_total{service="go-example-service",status_bucket="5xx"} [1m])) by (pod, service) / sum(rate(http_handler_statuses_total{service="go-example-service"} [1m])) by (pod, service) > 10
+        - alert: go-service-example-5xx-ratio
+          expr: 100 * sum(rate(http_handler_statuses_total{service="go-service-example",status_bucket="5xx"} [1m])) by (pod, service) / sum(rate(http_handler_statuses_total{service="go-service-example"} [1m])) by (pod, service) > 10
           for: 2m
           labels:
             severity: warning
@@ -26,8 +26,8 @@ spec:
           annotations:
             description: '{{ $labels.service }}: {{ $value | humanize }}% of requests to pod {{ $labels.pod }} fail with 5xx response'
             summary: '{{ $labels.service }} returns a lot of 5xx responses'
-        - alert: go-example-service-response-time
-          expr: avg(rate(http_handler_duration_seconds_sum{service="go-example-service"} [1m]) / rate(http_handler_duration_seconds_count{service="go-example-service"} [1m])) by (handler_name, service, pod) > 200/1000
+        - alert: go-service-example-response-time
+          expr: avg(rate(http_handler_duration_seconds_sum{service="go-service-example"} [1m]) / rate(http_handler_duration_seconds_count{service="go-service-example"} [1m])) by (handler_name, service, pod) > 200/1000
           for: 2m
           labels:
             severity: warning
@@ -35,8 +35,8 @@ spec:
           annotations:
             description: response time ({{ $value | humanizeDuration }}) for pod {{ $labels.pod }} exceeds defined threshold (200ms)'
             summary: 'Response time for {{ $labels.service }} to high ({{ $value | humanizeDuration }})'
-        - alert: go-example-service-restarts
-          expr: floor(sum(increase(kube_pod_container_status_restarts_total{container="go-example-service"} [10m])) by (container, pod)) >= 2
+        - alert: go-service-example-restarts
+          expr: floor(sum(increase(kube_pod_container_status_restarts_total{container="go-service-example"} [10m])) by (container, pod)) >= 2
           for: 1m
           labels:
             severity: warning

@@ -8,7 +8,7 @@ spec:
   jobLabel: app
   selector:
     matchLabels:
-      app: go-example-service
+      app: go-service-example
   namespaceSelector:
     matchNames:
       - dev
