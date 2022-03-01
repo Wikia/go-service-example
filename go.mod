@@ -6,7 +6,7 @@ require (
 	github.com/Wikia/go-commons v0.2.0
 	github.com/ardanlabs/conf v1.5.0
 	github.com/deepmap/oapi-codegen v1.9.0
-	github.com/getkin/kin-openapi v0.85.0
+	github.com/getkin/kin-openapi v0.90.0
 	github.com/labstack/echo-contrib v0.11.0
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/labstack/gommon v0.3.1
@@ -16,7 +16,7 @@ require (
 	github.com/prometheus/client_golang v1.11.0
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.19.1
-	gorm.io/gorm v1.22.3
+	gorm.io/gorm v1.23.2
 	gorm.io/plugin/opentracing v0.0.0-20210506132430-24a9caea7709
 )
 
@@ -35,7 +35,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.2 // indirect
+	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e // indirect
