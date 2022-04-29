@@ -3,7 +3,7 @@ module github.com/Wikia/go-service-example
 go 1.17
 
 require (
-	github.com/Wikia/go-commons v0.2.0
+	github.com/Wikia/go-commons v0.2.1
 	github.com/ardanlabs/conf v1.5.0
 	github.com/deepmap/oapi-codegen v1.9.0
 	github.com/getkin/kin-openapi v0.90.0
@@ -66,7 +66,7 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	gorm.io/driver/mysql v1.1.2 // indirect
+	gorm.io/driver/mysql v1.3.2 // indirect
 	gorm.io/plugin/dbresolver v1.1.0 // indirect
 	moul.io/zapgorm2 v1.1.0 // indirect
 )
