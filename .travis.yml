@@ -2,7 +2,7 @@ language: go
 go:
   - 1.x
 install:
-  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.41.1
+  - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
   - ./ci/get_gotestsum.sh -b $(go env GOPATH)/bin v1.6.4
 script:
   - make lint-ci
