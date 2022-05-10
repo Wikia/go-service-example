@@ -1,6 +1,6 @@
 language: go
 go:
-  - 1.x
+  - "1.17" # golangci-lint does not play well with go 1.18, see https://github.com/golangci/golangci-lint/issues/2649
 install:
   - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.45.2
   - ./ci/get_gotestsum.sh -b $(go env GOPATH)/bin v1.6.4
