@@ -3,6 +3,7 @@ package public
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/Wikia/go-commons/logging"
 	"github.com/Wikia/go-service-example/api"
@@ -56,7 +57,10 @@ func (s APIServer) CreateEmployee(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	logger.With("employee", e).Info("creating new employee")
+	// CWE-117, https://lgtm.com/rules/1514630437007/
+	escapedName := strings.ReplaceAll(e.Name, "\n", "")
+	escapedName = strings.ReplaceAll(escapedName, "\r", "")
+	logger.With("employee", escapedName).Info("creating new employee")
 
 	dbEmployee := employeeDBModelFromCreateRequest(e)
 
