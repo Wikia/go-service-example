@@ -16,7 +16,7 @@ require (
 	github.com/prometheus/client_golang v1.12.2
 	github.com/stretchr/testify v1.7.1
 	go.uber.org/zap v1.21.0
-	gorm.io/gorm v1.23.5
+	gorm.io/gorm v1.23.9
 	gorm.io/plugin/opentracing v0.0.0-20210506132430-24a9caea7709
 )
 
